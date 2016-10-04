@@ -8,6 +8,8 @@ Servidor teste para o sussurro
 
 ## executando
 
+	cd sussurro/
 	rake compile
+	mongod --dbpath=./
 	node server.js
 
