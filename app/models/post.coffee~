@@ -1,0 +1,13 @@
+###################
+# Post Model
+###################
+PostSchema = new mongoose.Schema
+        title: String
+        ref: String
+        text: String
+        timestamps: Date
+        authors: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}]
+        wiki: mongoose.Schema.Types.ObjectId
+        comments: [{type: mongoose.Schema.Types.ObjectId, ref: 'Comments'}]
+
+mongoose.model 'Post', PostSchema

@@ -1,0 +1,49 @@
+app.get '/users', (req, res, next) ->
+        User.find (err, users) ->
+                if not err
+                        #res.render 'compositores', compositores
+                        res.render 'users', {users: users}
+                else
+                        res.render 'users', {result: false, msg: "Nenhum usuário cadastrado. Seja o primeiro!"}
+                
+app.get '/user/:id', (req, res, next) ->
+        User.findOne {id: req.body.id},  (err, user) ->
+                #res.render 'compositores', compositores
+                if not req.query.flash
+                        if req.query.msg is 'cadastro'
+                                msg = 'Verifique seu email. Enviamos um código de verificação.'
+                        else if req.query.msg is 'verificado'
+                                msg = 'Sua nova senha é #{user.password}. Troque sua senha o mais rapidamente possível'
+                if req.query.flash
+                        if req.query.msg is 'cadastro'
+                                msg = 'Ocorreu um erro durante sua verificação'
+
+                if req.query.token
+                        if user.verified
+                                res.redirect "/user/#{user.id}/edit?token=#{req.query.token}"
+                        else
+                                res.redirect "/"
+                                
+                res.render 'user',
+                        flash: {sucess: req.query.flash, msg: msg}
+                        user:
+                                name: user.name
+                                email: user.email
+                                bio: if user.bio then user.bio else null
+                                postagens: user.postagens
+                                composicoes: user.composicoes
+
+app.get '/user/:id/edit', (req, res, next) ->
+        User.find id:req.body.id, (err, user) ->
+                if not err
+                        json =
+                                user:
+                                        name: user.name
+                                        id: user.id
+                                        email: user.email
+                                        bio: if user.bio then user.bio else null
+                        if req.query.token then json.flash = {sucess: true, msg: "sua senha é #{user.password}. Atualize agora"}                    
+                        res.render 'edit', json
+                else
+                        res.redirect '/users'
+                                

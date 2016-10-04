@@ -1,0 +1,11 @@
+extends layout
+
+block content
+  nav
+    div
+      font(face="Verdana, Arial, Helvetica, sans-serif" size="-2") Autores(as), por sobrenome ou apelido:
+    div
+      - var letters = "ABCDEFGHIJKLMNOPQRST".split("")
+      each(letter in letters)
+        a(href="http://localhost:3000/users/#{letters[i]}")= letter[i]
+      

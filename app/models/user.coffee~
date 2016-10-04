@@ -1,0 +1,39 @@
+############
+# User Model
+############
+UserSchema = new mongoose.Schema
+        name: String
+        email: String
+        token: String
+        verified: Boolean
+        password: String
+        bio: String
+        img: String
+        admin:
+                _is_: Boolean
+                _id_: {type: mongoose.Schema.Types.ObjectId, ref: 'Admin'}
+        posts: [{type: mongoose.Schema.Types.ObjectId, ref: 'Posts'}]
+        compositions: [{type: mongoose.Schema.Types.ObjectId, ref: 'Compositions'}]
+
+UserSchema.methods.setPassword = (pass) ->
+        this.password = pass
+        this.save()
+                
+UserSchema.methods.addBio = (bio) ->
+        this.info.bio = bio
+        this.save()
+
+UserSchema.methods.addPost = (text) ->
+        this.posts.push new Post(text: text)
+        if callback then this.save(callback) else this.save()
+
+UserSchema.methods.addComposition = (o) ->
+        this.compostion.push new Composition(o)
+        if callback then this.save(callback) else this.save()
+
+UserSchema.methods.isAdmin = (bio) ->
+        this.admin._is_ = true
+        this.admin._id_ = new Admin({user: this, _sudo_: {token:uuid.v4(), password: generatePassword(12,null)}});
+        this.save()
+
+mongoose.model 'User', UserSchema

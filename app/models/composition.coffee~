@@ -1,0 +1,12 @@
+###################
+# Composition Model
+###################
+CompositionSchema = new mongoose.Schema
+        name: String
+        tag: String 
+        path: String
+        finished: Date
+        version: String
+        link: String
+
+mongoose.model 'Composition', CompositionSchema

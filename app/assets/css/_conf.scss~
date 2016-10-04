@@ -1,0 +1,19 @@
+@media (min-width: 320px) {
+  .navbar-nav {
+    margin: 0;
+    text-align:right;
+  }
+  
+  .navbar-nav > li {
+     display: inline-block;
+  }
+  
+.navbar-nav li:first-child 
+  {
+   float:left;
+}
+  .navbar-nav > li > a {
+    padding-top: 15px;
+    padding-bottom: 15px;
+  }
+}

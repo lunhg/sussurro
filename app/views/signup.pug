@@ -1,0 +1,9 @@
+extends layout
+include ./mixins.pug
+
+block content
+  +createMainPage('Cadastre-se')
+    +form_for('/signup', 'post', form, 'vertical')
+    hr
+    p Ou entre através das redes sociais
+    +social_for('/signup', ['soundcloud', 'github'])

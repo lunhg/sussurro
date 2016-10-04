@@ -1,0 +1,15 @@
+extends layout
+include ./mixins.pug
+
+block content
+  div.row
+    +index_for('/?wiki', wikiname, wikiref, wikiposts)
+    //- if(newikis)
+    //  +index_for('/?wiki', 'sussurro', 'index', newikis) 
+    div.col-sm-9
+      +createMainPage(title)
+        div!= filters[0].render(text)
+        hr
+        small Publicado em: 
+        small= publishedAt
+    

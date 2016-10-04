@@ -1,0 +1,58 @@
+mixin createMainPage(t)
+  div.painel
+    div.page-header
+      h1= t
+    div.bs-component
+      if block
+        block
+
+mixin form_for(action, method, forms)
+  form.form-vertical(action=_action method=_method)
+    each form in forms
+      div.form-group
+        label.control-label(for=form.name)
+        - if(form.name === 'email' || form.name === 'password' || form.name === 'subject') 
+          input.form-control(type="text" placeholder=form.placeholder name=form.name)
+        - if(form.name === 'text' || form.name === 'message')
+          textarea.form-control(type="text" placeholder=form.placeholder  name=form.name style="height:200px")
+    button.btn.btn-primary(type="submit") enviar
+
+mixin social_for(action, social)
+  div.row
+    each form in social
+      div.col-md-1.col-sm-1
+        a(class="btn btn-"+form href=action+"/"+form)
+          i(aria-hidden="true" class="fa fa-"+form+" fa-2x")
+
+mixin index_for(action, name, desc, list)
+  - var _l = action+"="+name
+  div.col-lg-2.col-md-3.col-sm-3
+    div.page-title
+      hr
+      - if(list.length && list[0].ref)
+        a(href=_l)
+          h2= name
+      - else
+        h2= name
+      small= desc
+      hr
+    div.list-group.table-of-contents
+      each item in list
+        div.list-group-item
+          - if(list.ref)
+            a(href=_l+'&ref='+list.ref)
+            - if(item.title)
+              bold= item.title
+            - if(item.name)
+              bold= item.name
+            - if(item.username)
+              bold= item.username
+          - else
+            a(href=_l)
+            - if(item.title)
+              bold= item.title
+            - if(item.name)
+              bold= item.name
+            - if(item.username)
+              bold= item.username
+            

@@ -1,0 +1,6 @@
+extends layout
+include ./mixins.pug
+
+block content
+  +createMainPage('Críticas ou sugestões?')
+    +form_for('/mail', 'post', form)

@@ -1,0 +1,29 @@
+### LOAD LIBRARIES ###
+{{boot/libs}}
+
+### LOAD DATABASE ###
+{{app/models/user}}
+{{app/models/admin}}
+{{app/models/wiki}}
+{{app/models/post}}
+{{app/models/composition}}
+{{boot/db}}
+
+### LOAD EXPRESS AND PASSPORT ###
+{{boot/init}}
+{{config/soundcloud}}
+{{boot/passport}}
+
+
+### CONFIG MAILER ###
+{{config/mailer}}
+{{boot/mailer}}
+{{app/mailers/contact}}
+{{app/mailers/signup}}
+
+### CONFIG ROUTES ###
+{{app/controllers/index}}
+{{app/controllers/login}}
+{{app/controllers/user}}
+
+module.exports = app

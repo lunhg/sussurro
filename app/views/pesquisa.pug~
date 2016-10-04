@@ -1,0 +1,23 @@
+extends layout
+
+block content
+  div.painel
+    br
+    br
+    br
+    br
+    br
+    br
+    br
+    :marked
+  
+      # Pesquisa
+    
+      Aqui você poderá pesquisar as produções de diversos artistas, compositores e pesquisadores, eventualmente baixando obras completas ou apenas amostras (respeitando os direitos de reprodução - copyright ou copyleft), ou entrar em contato com seus [autores](/users).
+    br
+    br
+    br
+    br
+    br
+    br
+    br
