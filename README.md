@@ -10,6 +10,7 @@ Servidor teste para o sussurro
 
 	cd sussurro/
 	rake compile
-	mongod --dbpath=./
+	mkdir db ; mkdir db/data
+	mongod --dbpath=./db/data
 	node server.js
 
