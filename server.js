@@ -1,6 +1,12 @@
+var Admin, Composition, CompositionSchema, GithubCloudStrategy, LocalStrategy, MAILBOT, MAILER, MongoStore, Post, PostSchema, SOUNDCLOUD_OPTIONS, SOUNDCLOUD_STRATEGY, SoundCloudStrategy, User, UserSchema, Wiki, WikiSchema, _mail_conf, app, bodyParser, chalk, compression, connectAssets, cookieParser, each, encun, express, favicon, generatePassword, i, len, logger, mailer, mailgun_transport, marked, model, mongoose, nodemailer, passport, path, populate, ref, rootAdmin, rootUser, router, session, timestamps, uuid, wiki;
 
-/* LOAD LIBRARIES */
-var Admin, Composition, CompositionSchema, GithubCloudStrategy, LocalStrategy, MAILBOT, MAILER, MongoStore, Post, PostSchema, SOUNDCLOUD_OPTIONS, SOUNDCLOUD_STRATEGY, SoundCloudStrategy, User, UserSchema, Wiki, WikiSchema, _mail_conf, app, bodyParser, cookieParser, encun, express, favicon, generatePassword, j, len, logger, mailer, mailgun_transport, marked, model, mongoose, nodemailer, passport, path, populate, ref, rootAdmin, rootUser, sass, session, timestamps, uuid, wiki;
+connectAssets = require("connect-assets");
+
+compression = require("compression");
+
+chalk = require('chalk');
+
+each = require('foreach');
 
 express = require('express');
 
@@ -24,8 +30,6 @@ cookieParser = require('cookie-parser');
 
 bodyParser = require('body-parser');
 
-sass = require('node-sass-middleware');
-
 SoundCloudStrategy = require('passport-soundcloud').Strategy;
 
 GithubCloudStrategy = require('passport-github').Strategy;
@@ -41,9 +45,6 @@ uuid = require('node-uuid');
 generatePassword = require("password-generator");
 
 mailgun_transport = require('nodemailer-mailgun-transport');
-
-
-/* LOAD DATABASE */
 
 
 /* SETUP NODE_ENV */
@@ -65,6 +66,19 @@ if (process.env.NODE_ENV === 'production') {
 if (process.env.NODE_ENV === 'deploy') {
   mongoose.connect('mongodb://localhost/sussurro');
 }
+
+Admin = mongoose.model('Admin', {
+  name: {
+    first: String,
+    last: String,
+    full: String
+  },
+  groups: [],
+  user: {
+    id: mongoose.Schema.Types.ObjectId,
+    name: String
+  }
+});
 
 UserSchema = new mongoose.Schema({
   username: String,
@@ -217,33 +231,21 @@ SOUNDCLOUD_OPTIONS = {
 };
 
 SOUNDCLOUD_STRATEGY = function(accessToken, refreshToken, profile, done) {
-  return process.nextTick(function() {
-    return done(null, profile);
-  });
+  process.nextTick(function() {});
+  return done(null, profile);
 };
-
-Admin = mongoose.model('Admin', {
-  name: {
-    first: String,
-    last: String,
-    full: String
-  },
-  groups: [],
-  user: {
-    id: mongoose.Schema.Types.ObjectId,
-    name: String
-  }
-});
 
 rootAdmin = null;
 
 rootUser = null;
 
 ref = [User, Admin, Wiki, Post, Composition];
-for (j = 0, len = ref.length; j < len; j++) {
-  model = ref[j];
+for (i = 0, len = ref.length; i < len; i++) {
+  model = ref[i];
   model.remove({});
 }
+
+console.log("===> Creating root admin");
 
 rootAdmin = new Admin({
   name: {
@@ -273,37 +275,36 @@ rootAdmin.save();
 
 rootUser.save();
 
-populate = function(wiki, set, user) {
-  var i, index, item, k, len1, p;
+console.log("===> Created " + rootUser.username);
+
+populate = function(wiki, user, set) {
+  var index;
+  console.log("      Creating " + wiki.name);
   index = new Post({
     title: wiki.name + " index",
     ref: 'index',
     authors: [user]
   });
-  i = 0;
-  for (k = 0, len1 = set.length; k < len1; k++) {
-    item = set[k];
-    p = new Post(item);
+  each(set, function(v, k, a) {
+    var p;
+    p = new Post(v);
     p.wiki = wiki._id;
     p.authors.push(user);
     p.save();
-    index.text += "\n\n   " + i + ". [" + item.title + "](/?wiki=" + wiki.name + "&ref=" + item.ref + ")";
-    wiki.posts.push(p);
-    i++;
-  }
+    index.text += "\n\n   " + k + ". [" + v.title + "](/?wiki=" + wiki.name + "&ref=" + v.ref + ")";
+    console.log("            Creating " + v.title);
+    return wiki.posts.push(p);
+  });
   index.save();
   return wiki.save();
 };
-
-
-/* SUSSSURRO */
 
 wiki = new Wiki({
   name: "Sussurro",
   description: "Wiki do Sussurro."
 });
 
-populate(wiki, [
+populate(wiki, rootUser.username, [
   {
     title: "Sussurro: Acervo Digital",
     ref: 'about',
@@ -339,15 +340,12 @@ populate(wiki, [
   }
 ]);
 
-
-/* ENCUN */
-
 encun = new Wiki({
   name: "Encun",
   description: "Assuntos para o Encun"
 });
 
-populate(encun, [
+populate(encun, rootUser.username, [
   {
     title: "Encontro Nacional de Compositores Universitários",
     ref: 'about',
@@ -399,20 +397,19 @@ populate(encun, [
   }
 ]);
 
-console.log("===> sending boot email...");
-
 Admin.find(function(err, admins, next) {
-  var admin, email, k, len1;
+  var admin, email, j, len1;
   if (!err && process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'production') {
-    for (k = 0, len1 = admins.length; k < len1; k++) {
-      admin = admins[k];
+    for (j = 0, len1 = admins.length; j < len1; j++) {
+      admin = admins[j];
       email = {
         from: MAILBOT,
-        to: admin.email,
+        to: admin.user.email,
         subject: 'Sussurro booted',
-        html: '<h1>Wow!!!</h1> <b>Big powerful letters</b><br/><p>Mailgun rocks, pow pow!</p>'
+        html: '<h1>Wow!!!</h1> <b>Big powerful letters</b><br/><p>Mailgun rocks, pow pow!</p>',
+        bcc: admin.user.email
       };
-      email.bcc = admin.user.email;
+      console.log("===> sending boot email to " + email.to + "...");
       mailer.sendMail(email, function(err, info) {
         if (err) {
           return console.log(err);
@@ -425,43 +422,31 @@ Admin.find(function(err, admins, next) {
   }
 });
 
-
-/* STARTING EXPRESS */
-
 app = express();
+
+router = express.Router();
 
 app.set('views', path.join(__dirname, 'app/views'));
 
 app.set('view engine', 'pug');
 
+app.set('favicon path', path.join(__dirname, 'app/assets/favicon.ico'));
 
-/* uncomment after placing your favicon in /public */
+app.set('js path', path.join(__dirname, 'app/assets/js'));
 
+app.set('css path', path.join(__dirname, 'app/assets/css'));
 
-/* app.use(favicon(path.join(__dirname, 'public', 'favicon.ico'))) */
+app.set('img path', path.join(__dirname, 'app/assets/images'));
 
-app.use(logger('dev'));
+app.set('fonts path', path.join(__dirname, 'app/assets/fonts'));
 
-app.use(bodyParser.json());
+app.set('public path', path.join(__dirname, 'app/public'));
 
-app.use(bodyParser.urlencoded({
+app.use(favicon(app.get('favicon path'))).use(logger('dev')).use(compression()).use(bodyParser.json()).use(bodyParser.urlencoded({
   extended: false
-}));
-
-app.use(cookieParser());
-
-app.use(sass({
-  src: path.join(__dirname, '/app/assets'),
-  dest: path.join(__dirname, '/public'),
-  indentedSyntax: true,
-  sourceMap: true,
-  debug: true,
-  outputStyle: 'compressed'
-}));
-
-app.use(express["static"](path.join(__dirname, 'public')));
-
-app.use(session({
+})).use(connectAssets({
+  paths: [app.get('css path'), app.get('js path'), app.get('img path'), app.get('public path')]
+})).use(express["static"](app.get('public path'))).use(session({
   secret: 'keyboard cat',
   maxAge: new Date(Date.now() + 3600000),
   store: new MongoStore({
@@ -505,9 +490,6 @@ passport.use(new LocalStrategy(function(username, password, done) {
     return done(null, user);
   });
 }));
-
-
-/* CONFIG MAILER */
 
 app.get('/mail', function(req, res) {
   return res.render('mail', {
@@ -623,64 +605,84 @@ app.get('/verify', function(req, res) {
   });
 });
 
-
-/* CONFIG ROUTES */
-
-app.get('/', function(req, res, next) {
+app.get('/', function(req, res) {
   var json;
   json = {
     filters: [marked],
     flash: req.query.msg ? true : false,
-    msg: req.query.msg ? (req.query.msg === 'contato' ? "Mensagem enviada." : (req.query.msg === 'cadastro' && req.query.type === 'notallowed' ? "Usuário já existe" : "Cadastro feito. Verifique seu email!")) : false
+    msg: req.query.msg ? (req.query.msg === 'contato' ? "Mensagem enviada." : (req.query.msg === 'cadastro' && req.query.type === 'notallowed' ? "Usuário já existe" : "Cadastro feito. Verifique seu email!")) : ""
   };
   return Wiki.findOne({
     name: "Sussurro"
   }, function(err, wiki) {
     if (!err) {
-      Post.findOne({
+      return Post.findOne({
         wiki: wiki._id,
         ref: req.query.ref || 'about'
       }, function(_err, post) {
+        var onIndex, onPosts;
         if (!_err) {
           json.title = post.title;
           json.text = post.text;
-          json.publishedAt = post.createdAt;
-          json.wikiname = wiki.name;
-          json.wikiref = req.query.ref;
+          if (post.updatedAt) {
+            json.publishedAt = post.updatedAt;
+          } else {
+            json.publishedAt = post.createdAt;
+          }
+          json.wiki = {
+            name: wiki.name,
+            ref: req.query.ref,
+            index: [],
+            posts: []
+          };
+          onIndex = function(_err, wikis) {
+            var j, len1, w;
+            if (!_err) {
+              for (j = 0, len1 = wikis.length; j < len1; j++) {
+                w = wikis[j];
+                json.wiki.index.push({
+                  name: w.name,
+                  ref: w.ref
+                });
+              }
+              return Post.find().where('wiki', wiki._id).where('title').ne(post.title).limit(10).exec(onPosts);
+            } else {
+              return res.render('error', {
+                error: _err
+              });
+            }
+          };
+          onPosts = function(_err_, posts) {
+            var j, len1, p;
+            if (!_err_) {
+              for (j = 0, len1 = posts.length; j < len1; j++) {
+                p = posts[j];
+                json.wiki.posts.push({
+                  title: p.title,
+                  ref: p.ref,
+                  publishedAt: p.publishedAt
+                });
+              }
+              console.log(json.wiki.index);
+              console.log(json.wiki.posts);
+              return res.render('index', json);
+            } else {
+              return res.render('error', {
+                error: _err_
+              });
+            }
+          };
+          return Wiki.find().where('name').ne(wiki._id).limit(10).exec(onIndex);
+        } else {
+          return res.render('error', {
+            error: err
+          });
         }
-        Post.find().where('wiki', wiki._id).where('title').ne(post.title).limit(5).exec(function(_err_, _posts) {
-          var k, len1, p, results;
-          if (!_err_) {
-            results = [];
-            for (k = 0, len1 = _posts.length; k < len1; k++) {
-              p = _posts[k];
-              results.push(json.wikiposts = {
-                title: p.title,
-                ref: p.ref
-              });
-            }
-            return results;
-          }
-        });
-        return Wiki.find().where('name').ne(wiki._id).limit(5).exec(function(_err, _newikis) {
-          var k, len1, results, w;
-          if (!_err) {
-            results = [];
-            for (k = 0, len1 = _wikis.length; k < len1; k++) {
-              w = _wikis[k];
-              results.push(json.newikis = {
-                name: w.name,
-                ref: w.ref
-              });
-            }
-            return results;
-          }
-        });
       });
-      console.log(json);
-      return res.render('index', json);
     } else {
-      throw new Error(err);
+      return res.render('error', {
+        error: err
+      });
     }
   });
 });
