@@ -1,3 +1,7 @@
+connectAssets = require("connect-assets")
+compression = require("compression")
+chalk  = require 'chalk'
+each = require 'foreach'
 express = require 'express'
 session = require 'express-session'
 mongoose = require 'mongoose'
@@ -9,7 +13,6 @@ favicon = require 'serve-favicon'
 logger = require 'morgan'
 cookieParser = require 'cookie-parser'
 bodyParser = require 'body-parser'
-sass = require 'node-sass-middleware'
 SoundCloudStrategy = require('passport-soundcloud').Strategy
 GithubCloudStrategy = require('passport-github').Strategy
 LocalStrategy = require('passport-local').Strategy
@@ -18,4 +21,5 @@ nodemailer = require 'nodemailer'
 uuid = require 'node-uuid'
 generatePassword = require "password-generator"
 mailgun_transport = require 'nodemailer-mailgun-transport'
+
 

@@ -3,7 +3,7 @@ include ./mixins.pug
 
 block content
   div.row
-    +index_for('/?wiki', name, ref, index)
+    +index_for('/?wiki', wiki.name, wiki.ref, index)
     div.col-sm-9
       +createMainPage(title)
         div!= filters[0].render(text)

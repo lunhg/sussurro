@@ -33,7 +33,7 @@ mixin index_for(action, name, desc, list)
       small= desc
       hr
     div.list-group.table-of-contents
-      - for(var i=0; i<list.length item in list
+      - for(var item in list)
         div.list-group-item
           - if(item.ref)
             a(href=_l+'&ref='+item.ref)
@@ -51,4 +51,3 @@ mixin index_for(action, name, desc, list)
               bold= item.name
             - if(item.username)
               bold= item.username
-            

@@ -31,11 +31,30 @@ task :compile do
   #puts string
   i = 1
   string.each_line {|line|
-    puts "#{i}  #{line}"
+    puts gray("#{i}  #{line}")
     i = i + 1
   }
+
   File.open("./server.js", "w+") do |f|
-    f.write CoffeeScript.compile(string, {:bare => true})
-    puts "DONE"
+    begin
+      code = CoffeeScript.compile(string, {:bare => true})
+      f.write code
+      green "DONE"
+    rescue ExecJS::RuntimeError => e
+      puts red(e.to_s)
+      line = e.to_s
+      line = line.split "SyntaxError: [stdin]:"
+      line = line[1].split(":")
+      puts "#{red(string.split("\n")[line[0].to_i-1])}"
+    end
   end
 end
+
+# https://stackoverflow.com/questions/2070010/how-to-output-my-ruby-commandline-text-in-different-colours
+def colorize(text, color_code)
+  "\e[#{color_code}m#{text}\e[0m"
+end
+
+def red(text); colorize(text, 31); end
+def green(text); colorize(text, 32); end
+def gray(text); colorize(text, 36); end

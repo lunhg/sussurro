@@ -1,14 +1,2 @@
-###############
-# Admin Schema
-###############
-AdminSchema = new mongoose.Schema
-        name:
-                first: String
-                last : String
-                full: String
-        groups: Array
-        user :
-                id: mongoose.Schema.Types.ObjectId
-                name: String 
-
-mongoose.model 'Admin', AdminSchema
+# Comment these lines in test or production mode. #
+Admin = mongoose.model('Admin', { name: {first: String, last: String, full: String}, groups: [], user: {id: mongoose.Schema.Types.ObjectId, name: String}});
