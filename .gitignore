@@ -21,8 +21,6 @@ node_modules
 npm-debug.log
 
 # Emacs buffers
-app/*.*~
-boot/*.*~
-config/.*~
+
 
 Rakefile~

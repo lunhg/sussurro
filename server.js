@@ -1,4 +1,4 @@
-var Admin, Composition, CompositionSchema, GithubCloudStrategy, LocalStrategy, MAILBOT, MAILER, MongoStore, Post, PostSchema, SOUNDCLOUD_OPTIONS, SOUNDCLOUD_STRATEGY, SoundCloudStrategy, User, UserSchema, Wiki, WikiSchema, _mail_conf, app, bodyParser, chalk, compression, connectAssets, cookieParser, each, encun, express, favicon, generatePassword, i, len, logger, mailer, mailgun_transport, marked, model, mongoose, nodemailer, passport, path, populate, ref, rootAdmin, rootUser, router, session, timestamps, uuid, wiki;
+var Admin, Composition, CompositionSchema, GithubCloudStrategy, LocalStrategy, MAILBOT, MAILER, MongoStore, Post, PostSchema, SOUNDCLOUD_OPTIONS, SOUNDCLOUD_STRATEGY, SoundCloudStrategy, User, UserSchema, Wiki, WikiSchema, _mail_conf, app, bodyParser, chalk, compression, connectAssets, cookieParser, each, express, favicon, generatePassword, i, len, logger, mailer, mailgun_transport, marked, mongoose, nodemailer, onPopulate, passport, path, populate, ref, router, session, timestamps, uuid, val;
 
 connectAssets = require("connect-assets");
 
@@ -235,167 +235,162 @@ SOUNDCLOUD_STRATEGY = function(accessToken, refreshToken, profile, done) {
   return done(null, profile);
 };
 
-rootAdmin = null;
-
-rootUser = null;
-
-ref = [User, Admin, Wiki, Post, Composition];
-for (i = 0, len = ref.length; i < len; i++) {
-  model = ref[i];
-  model.remove({});
-}
-
-console.log("===> Creating root admin");
-
-rootAdmin = new Admin({
-  name: {
-    first: 'Root',
-    last: 'Admin',
-    full: 'Root Admin'
-  },
-  groups: ['root']
-});
-
-rootUser = new User({
-  username: 'Leverkun-bot',
-  isActive: false,
-  token: uuid.v4(),
-  email: MAILBOT,
-  roles: {
-    admin: rootAdmin._id
-  },
-  password: generatePassword(12, null)
-});
-
-rootAdmin.user = {
-  id: rootUser._id
-};
-
-rootAdmin.save();
-
-rootUser.save();
-
-console.log("===> Created " + rootUser.username);
-
 populate = function(wiki, user, set) {
   var index;
   console.log("      Creating " + wiki.name);
   index = new Post({
     title: wiki.name + " index",
     ref: 'index',
-    authors: [user]
+    authors: [user.username]
   });
-  each(set, function(v, k, a) {
+  return each(set, function(v, k, a) {
     var p;
     p = new Post(v);
     p.wiki = wiki._id;
-    p.authors.push(user);
+    p.authors.push(user.username);
     p.save();
     index.text += "\n\n   " + k + ". [" + v.title + "](/?wiki=" + wiki.name + "&ref=" + v.ref + ")";
     console.log("            Creating " + v.title);
-    return wiki.posts.push(p);
+    wiki.posts.push(p);
+    index.save();
+    return wiki.save();
   });
-  index.save();
-  return wiki.save();
 };
 
-wiki = new Wiki({
-  name: "Sussurro",
-  description: "Wiki do Sussurro."
-});
+onPopulate = function() {
+  var encun, rootAdmin, rootUser, wiki;
+  console.log("===> Creating root admin");
+  rootAdmin = new Admin({
+    name: {
+      first: 'Root',
+      last: 'Admin',
+      full: 'Root Admin'
+    },
+    groups: ['root']
+  });
+  rootUser = new User({
+    username: 'Alma-Mahler-bot',
+    isActive: false,
+    token: uuid.v4(),
+    email: MAILBOT,
+    roles: {
+      admin: rootAdmin._id
+    },
+    password: generatePassword(12, null)
+  });
+  rootAdmin.user = {
+    id: rootUser._id
+  };
+  rootAdmin.save();
+  rootUser.save();
+  wiki = new Wiki({
+    name: "Sussurro",
+    description: "Wiki do Sussurro."
+  });
+  populate(wiki, rootUser.username, [
+    {
+      title: "Sussurro: Acervo Digital",
+      ref: 'about',
+      text: "O atual [Sussurro](http://sussurro.musica.ufrj.br/) é um acervo de música contemporânea produzida no Brasil. Foi criado em 2006 por [Rodolfo Caesar](http://buscatextual.cnpq.br/buscatextual/visualizacv.do?id=K4783960P4) com o objetivo de ser um espaço acessível de divulgação.\n\n"
+    }, {
+      title: "Pesquisa",
+      ref: 'research',
+      text: "Aqui você poderá pesquisar as produções de diversos artistas, compositores e pesquisadores, eventualmente baixando obras completas ou apenas amostras (respeitando os direitos de reprodução - copyright ou copyleft), ou entrar em contato com seus [autores](/users)."
+    }, {
+      title: 'Produção',
+      ref: 'production',
+      text: "A produção apresentada gira em torno do repertório das artes sônicas: músicas experimentais, sejam acusmáticas, mistas, live, auxiliadas-por-computador, algorítmicas, música-vídeo, multimídia, intermídia, músicas instrumentais com vetores experimentais, poesia, etc. (inexistindo um recorte tecnológico). A ideia é oferecer documentação e divulgação a uma produção que, para manter o que lhe é específico, não pode correr no mesmo passo do mercado."
+    }, {
+      title: 'Cadastro',
+      ref: 'signup',
+      text: "O cadastro é realizado ao acessar a página de [cadastro](/signup). Por sua vez, o usuário receberá um email com um [token](https://en.wikipedia.org/wiki/Chain_of_trust) para verificação.\n\nUma vez feita a verificação, o usuário pode [modificar sua senha](/?wiki=main&ref=senha)."
+    }, {
+      title: 'Login',
+      ref: 'login',
+      text: "O sussurro é um sistema [wiki](https://pt.wikipedia.org/wiki/Wiki), cuja base de dados é construída por [usuários](/?wiki=main&ref=users) e [administradores](/?wiki=main&ref=admin).\n\nO usuário pode então construir outros wikis, cujo documentos textuais podem fazer referêcia a outros [documentos](/?wiki=main&ref=post) e [composições](/?wiki=main&ref=composicao)."
+    }, {
+      title: 'Administradores',
+      ref: 'admin',
+      text: "*Página em construção*"
+    }, {
+      title: 'Usuários',
+      ref: 'users',
+      text: "*Página em construção*"
+    }, {
+      title: 'Senha',
+      ref: 'senha',
+      text: "*Página em construção*"
+    }
+  ]);
+  encun = new Wiki({
+    name: "Encun",
+    description: "Assuntos para o Encun"
+  });
+  populate(encun, rootUser.username, [
+    {
+      title: "Encontro Nacional de Compositores Universitários",
+      ref: 'about',
+      text: " *Página em construção*"
+    }, {
+      title: "Encun I",
+      ref: 'I',
+      text: " *Página em construção*"
+    }, {
+      title: "Encun II",
+      ref: 'II',
+      text: " *Página em construção*"
+    }, {
+      title: "Encun III",
+      ref: 'III',
+      text: " *Página em construção*"
+    }, {
+      title: "Encun IV",
+      ref: 'IV',
+      text: " *Página em construção*"
+    }, {
+      title: "Encun V",
+      ref: 'V',
+      text: " *Página em construção*"
+    }, {
+      title: "Encun VI",
+      ref: 'VI',
+      text: " *Página em construção*"
+    }, {
+      title: "Encun VII",
+      ref: 'VII',
+      text: " *Página em construção*"
+    }, {
+      title: "Encun VIII",
+      ref: 'VIII',
+      text: " *Página em construção*"
+    }, {
+      title: "Encun IX",
+      ref: 'IX',
+      text: " *Página em construção*"
+    }, {
+      title: "Encun X",
+      ref: 'X',
+      text: " *Página em construção*"
+    }, {
+      title: "Encun V",
+      ref: 'V',
+      text: " *Página em construção*"
+    }
+  ]);
+  return console.log("===> Created " + rootUser.username);
+};
 
-populate(wiki, rootUser.username, [
-  {
-    title: "Sussurro: Acervo Digital",
-    ref: 'about',
-    text: "O atual [Sussurro](http://sussurro.musica.ufrj.br/) é um acervo de música contemporânea produzida no Brasil. Foi criado em 2006 por [Rodolfo Caesar](http://buscatextual.cnpq.br/buscatextual/visualizacv.do?id=K4783960P4) com o objetivo de ser um espaço acessível de divulgação.\n\n"
-  }, {
-    title: "Pesquisa",
-    ref: 'research',
-    text: "Aqui você poderá pesquisar as produções de diversos artistas, compositores e pesquisadores, eventualmente baixando obras completas ou apenas amostras (respeitando os direitos de reprodução - copyright ou copyleft), ou entrar em contato com seus [autores](/users)."
-  }, {
-    title: 'Produção',
-    ref: 'production',
-    text: "A produção apresentada gira em torno do repertório das artes sônicas: músicas experimentais, sejam acusmáticas, mistas, live, auxiliadas-por-computador, algorítmicas, música-vídeo, multimídia, intermídia, músicas instrumentais com vetores experimentais, poesia, etc. (inexistindo um recorte tecnológico). A ideia é oferecer documentação e divulgação a uma produção que, para manter o que lhe é específico, não pode correr no mesmo passo do mercado."
-  }, {
-    title: 'Cadastro',
-    ref: 'signup',
-    text: "O cadastro é realizado ao acessar a página de [cadastro](/signup). Por sua vez, o usuário receberá um email com um [token](https://en.wikipedia.org/wiki/Chain_of_trust) para verificação.\n\nUma vez feita a verificação, o usuário pode [modificar sua senha](/?wiki=main&ref=senha)."
-  }, {
-    title: 'Login',
-    ref: 'login',
-    text: "O sussurro é um sistema [wiki](https://pt.wikipedia.org/wiki/Wiki), cuja base de dados é construída por [usuários](/?wiki=main&ref=users) e [administradores](/?wiki=main&ref=admin).\n\nO usuário pode então construir outros wikis, cujo documentos textuais podem fazer referêcia a outros [documentos](/?wiki=main&ref=post) e [composições](/?wiki=main&ref=composicao)."
-  }, {
-    title: 'Administradores',
-    ref: 'admin',
-    text: "*Página em construção*"
-  }, {
-    title: 'Usuários',
-    ref: 'users',
-    text: "*Página em construção*"
-  }, {
-    title: 'Senha',
-    ref: 'senha',
-    text: "*Página em construção*"
+ref = [Admin, User, Wiki, Post, Composition];
+for (i = 0, len = ref.length; i < len; i++) {
+  val = ref[i];
+  val.remove({});
+}
+
+Admin.findOne({}, function(err, admins) {
+  if (!admins) {
+    return onPopulate();
   }
-]);
-
-encun = new Wiki({
-  name: "Encun",
-  description: "Assuntos para o Encun"
 });
-
-populate(encun, rootUser.username, [
-  {
-    title: "Encontro Nacional de Compositores Universitários",
-    ref: 'about',
-    text: " *Página em construção*"
-  }, {
-    title: "Encun I",
-    ref: 'I',
-    text: " *Página em construção*"
-  }, {
-    title: "Encun II",
-    ref: 'II',
-    text: " *Página em construção*"
-  }, {
-    title: "Encun III",
-    ref: 'III',
-    text: " *Página em construção*"
-  }, {
-    title: "Encun IV",
-    ref: 'IV',
-    text: " *Página em construção*"
-  }, {
-    title: "Encun V",
-    ref: 'V',
-    text: " *Página em construção*"
-  }, {
-    title: "Encun VI",
-    ref: 'VI',
-    text: " *Página em construção*"
-  }, {
-    title: "Encun VII",
-    ref: 'VII',
-    text: " *Página em construção*"
-  }, {
-    title: "Encun VIII",
-    ref: 'VIII',
-    text: " *Página em construção*"
-  }, {
-    title: "Encun IX",
-    ref: 'IX',
-    text: " *Página em construção*"
-  }, {
-    title: "Encun X",
-    ref: 'X',
-    text: " *Página em construção*"
-  }, {
-    title: "Encun V",
-    ref: 'V',
-    text: " *Página em construção*"
-  }
-]);
 
 Admin.find(function(err, admins, next) {
   var admin, email, j, len1;
@@ -606,12 +601,6 @@ app.get('/verify', function(req, res) {
 });
 
 app.get('/', function(req, res) {
-  var json;
-  json = {
-    filters: [marked],
-    flash: req.query.msg ? true : false,
-    msg: req.query.msg ? (req.query.msg === 'contato' ? "Mensagem enviada." : (req.query.msg === 'cadastro' && req.query.type === 'notallowed' ? "Usuário já existe" : "Cadastro feito. Verifique seu email!")) : ""
-  };
   return Wiki.findOne({
     name: "Sussurro"
   }, function(err, wiki) {
@@ -620,62 +609,56 @@ app.get('/', function(req, res) {
         wiki: wiki._id,
         ref: req.query.ref || 'about'
       }, function(_err, post) {
-        var onIndex, onPosts;
+        var json, onPosts, onWiki;
         if (!_err) {
-          json.title = post.title;
-          json.text = post.text;
-          if (post.updatedAt) {
-            json.publishedAt = post.updatedAt;
-          } else {
-            json.publishedAt = post.createdAt;
-          }
-          json.wiki = {
+          json = {
+            filters: [marked],
+            flash: req.query.msg ? true : false,
+            msg: req.query.msg ? (req.query.msg === 'contato' ? "Mensagem enviada." : (req.query.msg === 'cadastro' && req.query.type === 'notallowed' ? "Usuário já existe" : "Cadastro feito. Verifique seu email!")) : "",
+            title: post.title,
+            text: post.text,
+            updatedAt: post.updatedAt || post.createdAt,
+            authors: post.authors,
             name: wiki.name,
-            ref: req.query.ref,
+            ref: req.query.ref || "about",
             index: [],
             posts: []
           };
-          onIndex = function(_err, wikis) {
-            var j, len1, w;
+          onWiki = function(_err, wikis) {
+            var j, len1, o, w;
+            for (j = 0, len1 = wikis.length; j < len1; j++) {
+              w = wikis[j];
+              json.index.push(o = {
+                name: w.name,
+                ref: w.ref || "about"
+              });
+            }
+            console.log(json);
+            return res.render('index', json);
+          };
+          onPosts = function(_err, posts) {
+            var j, len1, o, p, results;
             if (!_err) {
-              for (j = 0, len1 = wikis.length; j < len1; j++) {
-                w = wikis[j];
-                json.wiki.index.push({
-                  name: w.name,
-                  ref: w.ref
-                });
+              results = [];
+              for (j = 0, len1 = posts.length; j < len1; j++) {
+                p = posts[j];
+                results.push(post = json.posts.push(o = {
+                  title: p.title,
+                  ref: p.ref
+                }));
               }
-              return Post.find().where('wiki', wiki._id).where('title').ne(post.title).limit(10).exec(onPosts);
+              return results;
             } else {
               return res.render('error', {
                 error: _err
               });
             }
           };
-          onPosts = function(_err_, posts) {
-            var j, len1, p;
-            if (!_err_) {
-              for (j = 0, len1 = posts.length; j < len1; j++) {
-                p = posts[j];
-                json.wiki.posts.push({
-                  title: p.title,
-                  ref: p.ref,
-                  publishedAt: p.publishedAt
-                });
-              }
-              console.log(json.wiki.index);
-              console.log(json.wiki.posts);
-              return res.render('index', json);
-            } else {
-              return res.render('error', {
-                error: _err_
-              });
-            }
-          };
-          return Wiki.find().where('name').ne(wiki._id).limit(10).exec(onIndex);
+          Post.find().where('wiki', wiki._id).where('title').ne(post.title).exec(onPosts);
+          return Wiki.find().ne('wiki', wiki._id).exec(onWiki);
         } else {
           return res.render('error', {
-            error: err
+            error: _err
           });
         }
       });

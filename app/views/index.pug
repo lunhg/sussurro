@@ -2,12 +2,7 @@ extends layout
 include ./mixins.pug
 
 block content
-  div.row
-    +index_for('/?wiki', name, ref, index)
-    div.col-sm-9
-      +createMainPage(title)
-        div!= filters[0].render(text)
-        hr
-        small Publicado em: 
-        small= publishedAt
-    
+  +menu('?wiki', name, index, posts)
+  - var msg = "Publicado em "+updatedAt+" por "+authors
+  +post(title, text, msg)
+          

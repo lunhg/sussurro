@@ -1,10 +1,10 @@
-mixin createMainPage(t)
+mixin post(t, text, msg)
   div.painel
-    div.page-header
-      h1= t
+    h1= t
+    br
+    small= msg
     div.bs-component
-      if block
-        block
+      div!= filters[0].render(text)
 
 mixin form_for(action, method, forms)
   form.form-vertical(action=_action method=_method)
@@ -24,30 +24,54 @@ mixin social_for(action, social)
         a(class="btn btn-"+form href=action+"/"+form)
           i(aria-hidden="true" class="fa fa-"+form+" fa-2x")
 
-mixin index_for(action, name, desc, list)
-  - var _l = action+"="+name
-  div.col-lg-2.col-md-3.col-sm-3
+mixin menu(action, name, list, sublist)
+  div.col-xs-2.col-sm-3.sidebar-offcanvas#sidebar(role="navigation")
     div.page-title
       hr
       h2= name
-      small= desc
       hr
     div.list-group.table-of-contents
-      - for(var item in list)
+      - for(var i in list)
+        -var item = list[i]
         div.list-group-item
           - if(item.ref)
-            a(href=_l+'&ref='+item.ref)
-            - if(item.title)
-              bold= item.title
-            - if(item.name)
-              bold= item.name
-            - if(item.username)
-              bold= item.username
-          - else
+            - var _l = action+"="+name+"&ref="+item.ref
             a(href=_l)
-            - if(item.title)
-              bold= item.title
-            - if(item.name)
-              bold= item.name
-            - if(item.username)
-              bold= item.username
+              - if(item.title)
+                bold= item.title
+              - if(item.name)
+                bold= item.name
+              - if(item.username)
+                bold= item.username
+          - else
+            - var _l = action+"="+name+"&ref=about"
+            a(href=_l)
+              - if(item.title)
+                bold= item.title
+              - if(item.name)
+                bold= item.name
+              - if(item.username)
+                bold= item.username
+    div.list-group.table-of-contents 
+      p #{name} Index
+      - for(var i in sublist)
+        -var item = sublist[i]
+        div.list-group-item
+          - if(item.ref)
+            - var _l = action+"="+name+"&ref="+item.ref
+            a(href=_l)
+              - if(item.title)
+                bold= item.title
+              - if(item.name)
+                bold= item.name
+              - if(item.username)
+                bold= item.username
+          - else
+            - var _l = action+"="+name+"&ref=about"
+            a(href=_l)
+              - if(item.title)
+                bold= item.title
+              - if(item.name)
+                bold= item.name
+              - if(item.username)
+                bold= item.username
