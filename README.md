@@ -2,42 +2,36 @@
 
 Servidor teste para o sussurro. Desenvolvido como uma simulação de aplicação MVC-Rails, mas escrita completamente escrita em CoffeeScript e Ruby.
 
-## instalando
+## Instalando
 
     git clone https://www.github.com/jahpd/sussurro.git
 
-## executando
+## Executando
 
-- Antes de tudo, instale um servidor [MongoDB](https://docs.mongodb.com/manual/installation/)
+Antes de tudo, instale um servidor [MongoDB](https://docs.mongodb.com/manual/installation/). 
 
-- Vá para o diretório principal
-
+Vá para o diretório principal:
 
     cd sussurro/
 
+Instale todos os pacotes necessários:
 
-- Instale todos os pacotes necessários
+    npm install
 
-
-	npm install
-
-- Crie um diretório apropriado para a base de dados
-
+Crie um diretório apropriado para a base de dados:
 
     mkdir ./db
-	mkdir ./db/data
+    mkdir ./db/data
 
 
-- Você pode inicializar a base de dados, compilar e correr
+Você pode inicializar a base de dados, compilar e executar o servidor, na ordem respectiva:
+        
+    rake compile	
+    mongod --dbpath=./db/data
+    node server.js
 
 
-	rake compile	
-	mongod --dbpath=./db/data
-	node server.js
-
-
-- Ou simplismente
-
+## Executando tudo isso que estava em cima de uma vez:
 
     npm start
 
