@@ -1,3 +1,0 @@
-# GET /contato
-app.get '/contato', (req, res) ->
-        res.render 'contato', { title: 'Contato', filters: [ marked ] }

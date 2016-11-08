@@ -1,1 +1,0 @@
-O atual [Sussurro](http://sussurro.musica.ufrj.br/) é um acervo de música contemporânea produzida no Brasil. Foi criado em 2006 pelo [Rodolfo Caesar](http://buscatextual.cnpq.br/buscatextual/visualizacv.do?id=K4783960P4) com o intuito de ser um espaço acessível de divulgação.

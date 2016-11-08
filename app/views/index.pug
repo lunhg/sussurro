@@ -1,8 +1,0 @@
-extends layout
-include ./mixins.pug
-
-block content
-  +menu('?wiki', name, index, posts)
-  - var msg = "Publicado em "+updatedAt+" por "+authors
-  +post(title, text, msg)
-          

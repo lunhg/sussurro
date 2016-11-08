@@ -1,7 +1,0 @@
-###################
-# Wiki Model
-###################
-WikiSchema = new mongoose.Schema
-        posts: [{type: mongoose.Schema.Types.ObjectId, ref: 'Posts'}]
-
-mongoose.model 'Post', PostSchema
