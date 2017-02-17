@@ -1,5 +1,5 @@
 doctype html
-html
+html(ng-app="Sussurro")
   head
     title= title
   body
@@ -13,14 +13,7 @@ html
           a.navbar-brand(href="#")= title
          
     div.page
-      - if(flash && msg)
-        span.alert.alert-success.center
-          strong= msg
-      - else if(!flash && msg)
-        span.alert.alert-danger
-          strong= msg
-      div.col-lg-14
-        block content
+      block content
     != css("style")
     script(src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js")
     script(src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous")

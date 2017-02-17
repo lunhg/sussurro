@@ -1,10 +1,14 @@
-# GET /mail
-app.get '/mail', (req, res) -> res.render 'mail', form: [{name:'email', placeholder:'vc@email'}, {name:'subject', placeholder:'subject'}, {name:'text', placeholder:'Mensagem.'}]
+### GET /mail ###
+GET '/mail', (req, res) ->
+        res.render 'mail',
+                form: [
+                        {name:'email', placeholder:'vc@email'},
+                        {name:'subject', placeholder:'subject'},
+                        {name:'text', placeholder:'Mensagem.'}
+                ]
 
-###########
-# POST /mail
-############
-app.post '/mail', (req,res)->
+### POST /mail ###
+POST '/mail', (req,res)->
         console.log "===> sending email"
         email =
                 from: req.body.email

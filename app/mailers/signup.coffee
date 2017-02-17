@@ -1,8 +1,8 @@
-# GET /signup
-app.get '/signup', (req, res) -> res.render 'signup', form: [{name:'email', placeholder:'email'}]
+### GET /signup ###
+GET '/signup', (req, res) -> res.render 'signup', form: [{name:'email', placeholder:'email'}]
 
-# POST /signup
-app.post '/signup', (req, res) ->
+### POST /signup ###
+POST '/signup', (req, res) ->
         name = req.body.email.split("@")[0]
         
         User.findOne email: req.body.email, (err, users) ->
