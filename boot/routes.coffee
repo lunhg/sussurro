@@ -8,8 +8,7 @@ sussurro.app.param 'wiki_id', wikis.id
 sussurro.app.param 'post_id', posts.id
 
 ### Welcome ###
-sussurro.app.get '/', (req, res) ->
-        res.render 'index'
+sussurro.app.get '/', index.welcome
 
 ### Profiles ###
 sussurro.app.get   "/api/profiles", profiles.index

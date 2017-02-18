@@ -32,8 +32,7 @@ server.on 'error', (error) ->
 server.on 'listening', ->
         addr = server.address()
         bind = if typeof addr is 'string' then 'pipe ' + addr else 'port ' + addr.port
-        console.log chalk.cyan("==> Server ready")
-        console.log chalk.cyan('Listening server in ' + bind)
+        console.log chalk.cyan('==>Listening server in ' + bind)
         
 server.listen(port)
 

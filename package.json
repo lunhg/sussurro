@@ -11,9 +11,11 @@
   "private": true,
   "scripts": {
     "build": "grunt --verbose",
-    "test": "npm run build ; mocha --timeout 3000 -R spec dist/build_spec.js; mocha --timeout 2000 -R spec dist/www_spec.js",
-    "serve": "./dist/www.js",
-    "start": "npm run test ; npm run serve"
+    "test_app": "npm run build ; mocha --timeout 3000 -R markdown dist/build_spec.js >> BUILD_TEST.md",
+    "test_server": "npm run build; mocha --timeout 3000 -R markdown dist/www_spec.js >> WWW_TEST.md",
+    "server": "./dist/www.js",
+    "test": "npm run test_app ; npm run test_server",
+    "start": "npm test ; npm run server"
   },
   "dependencies": {
     "body-parser": "~1.15.1",

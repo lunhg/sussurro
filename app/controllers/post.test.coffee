@@ -27,8 +27,3 @@ describe chalk.green("app/controllers/post"), ->
                                                 post.should.have.property 'text'
                                                 post.should.have.property 'title'
                                                 post.should.have.property 'author'
-
-
-        it "Disconnect from mongodb", ->
-                sussurro.connection.disconnect().then (readyState)->
-                        readyState.should.be.equal 3

@@ -1,6 +1,7 @@
 sussurro = new App()
                         
 App::configure = (readyState) ->
+        @app = if not @app then sussurro.app
         @app.set 'views', path.join(__dirname, '..', 'app/views/')
         @app.engine 'pug', (file_path, options, _callback) ->
                 fs.readFile file_path, 'utf8', (err, content) ->
@@ -41,5 +42,6 @@ App::configure = (readyState) ->
                         saveUninitialized: true
                         resave: false
                 })
+        mongoose.connection.readyState
                 
 console.log chalk.yellow("==> App boot helpers loaded")

@@ -1,6 +1,6 @@
 
 /* MAIN LIBRARIES */
-var App, Bio, BioSchema, Contato, ContatoSchema, GithubCloudStrategy, Local, LocalSchema, LocalStrategy, MongoStore, Post, PostSchema, Profile, ProfileSchema, Session, SessionSchema, SoundCloudStrategy, SussurroConn, User, UserSchema, Wiki, WikiSchema, _schema, bios, bodyParser, chalk, compression, connectAssets, contatos, cookieParser, crypto, each, express, favicon, fs, generatePassword, keychain, locals, logger, mailgun_transport, marked, mongoose, nodemailer, onValidate, passport, path, posts, profiles, roles, session, sussurro, timestamps, uuid, validateLocalStrategyPassword, validateLocalStrategyProperty, wikis;
+var App, Bio, BioSchema, Contato, ContatoSchema, GithubCloudStrategy, Local, LocalSchema, LocalStrategy, MongoStore, Post, PostSchema, Profile, ProfileSchema, Session, SessionSchema, SoundCloudStrategy, SussurroConn, User, UserSchema, Wiki, WikiSchema, _schema, bios, bodyParser, chalk, compression, connectAssets, contatos, cookieParser, crypto, each, express, favicon, fs, generatePassword, index, keychain, locals, logger, mailgun_transport, marked, mongoose, nodemailer, onValidate, passport, path, posts, profiles, roles, session, sussurro, timestamps, uuid, validateLocalStrategyPassword, validateLocalStrategyProperty, wikis;
 
 fs = require('fs');
 
@@ -470,6 +470,7 @@ console.log(chalk.yellow("==> " + Session.modelName + " schema loaded"));
 sussurro = new App();
 
 App.prototype.configure = function(readyState) {
+  this.app = !this.app ? sussurro.app : void 0;
   this.app.set('views', path.join(__dirname, '..', 'app/views/'));
   this.app.engine('pug', function(file_path, options, _callback) {
     return fs.readFile(file_path, 'utf8', function(err, content) {
@@ -513,7 +514,7 @@ App.prototype.configure = function(readyState) {
   this.app.use(connectAssets({
     paths: [this.app.get('img path'), this.app.get('css path'), this.app.get('js path')]
   }));
-  return Session.findOne({}, (function(_this) {
+  Session.findOne({}, (function(_this) {
     return function(err, _session) {
       return _this.app.use(session({
         secret: _session.pass,
@@ -526,6 +527,7 @@ App.prototype.configure = function(readyState) {
       }));
     };
   })(this));
+  return mongoose.connection.readyState;
 };
 
 console.log(chalk.yellow("==> App boot helpers loaded"));
@@ -563,7 +565,7 @@ profiles.index = function(req, res) {
 /* POST /api/profiles/new */
 
 profiles.create = function(req, res) {
-  var _local, bio, contato, i, j, kv, len, len1, local, profile, ref, ref1, user, v;
+  var _local, bio, contato, k, kv, l, len, len1, local, profile, ref, ref1, user, v;
   profile = new Profile({
     nome_completo: req.query.nome_completo,
     nome_artistico: req.query.nome_artistico
@@ -586,14 +588,14 @@ profiles.create = function(req, res) {
   });
   bio.save();
   ref = 'nascimento falecimento'.split(' ');
-  for (i = 0, len = ref.length; i < len; i++) {
-    local = ref[i];
+  for (k = 0, len = ref.length; k < len; k++) {
+    local = ref[k];
     if (req.query['local_de_' + local]) {
       _local = new Local();
       _local.tipo = local;
       ref1 = req.query['local_de_' + local].split("||");
-      for (j = 0, len1 = ref1.length; j < len1; j++) {
-        v = ref1[j];
+      for (l = 0, len1 = ref1.length; l < len1; l++) {
+        v = ref1[l];
         kv = v.split(":");
         _local[kv[0]] = kv[1];
       }
@@ -908,6 +910,57 @@ posts.id = function(req, res, next, id) {
 console.log(chalk.yellow("==> Post controller loaded"));
 
 
+/* Initialize a index router */
+
+index = {};
+
+
+/* GET / */
+
+index.welcome = function(req, res) {
+  var json;
+  json = {
+    flash: false,
+    msg: '',
+    wikis: []
+  };
+  return Wiki.find({}, 'name description posts', function(err, wikis) {
+    var j;
+    if (err) {
+      return res.json({
+        error: err
+      });
+    } else {
+      j = 0;
+      each(wikis, function(wiki, i, a) {
+        json.wikis.push(wiki);
+        return Post.find({
+          wiki: wiki._id
+        }, 'title text author updatedAt', function(err, posts) {
+          if (err) {
+            return res.json({
+              error: err
+            });
+          } else {
+            return each(posts, function(post, j, aa) {
+              return json.wikis[i].posts[j] = {
+                text: post.text,
+                title: post.title,
+                updatedAt: post.updatedAt
+              };
+            });
+          }
+        });
+      });
+      res.status(200);
+      return res.json(json);
+    }
+  });
+};
+
+console.log(chalk.yellow("==> Index helpers loaded"));
+
+
 /* ROUTES */
 
 sussurro.app.param('id', profiles.id);
@@ -928,9 +981,7 @@ sussurro.app.param('post_id', posts.id);
 
 /* Welcome */
 
-sussurro.app.get('/', function(req, res) {
-  return res.render('index');
-});
+sussurro.app.get('/', index.welcome);
 
 
 /* Profiles */
@@ -983,8 +1034,8 @@ console.log(chalk.cyan("==> Sussurro ready"));
 
 sussurro.connection.connect().then(function(db) {
   return sussurro.configure(function(readyState) {
-    if (readyState !== 1) {
-      return process.exit(1);
+    if (readyState === 1) {
+      return console.log(chalk.cyan("==> Server ready"));
     }
   });
 });

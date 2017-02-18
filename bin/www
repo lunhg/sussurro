@@ -62,8 +62,7 @@ server.on('listening', function() {
   var addr, bind;
   addr = server.address();
   bind = typeof addr === 'string' ? 'pipe ' + addr : 'port ' + addr.port;
-  console.log(chalk.cyan("==> Server ready"));
-  return console.log(chalk.cyan('Listening server in ' + bind));
+  return console.log(chalk.cyan('==>Listening server in ' + bind));
 });
 
 server.listen(port);

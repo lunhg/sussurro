@@ -60,8 +60,7 @@ server.on('listening', function() {
   var addr, bind;
   addr = server.address();
   bind = typeof addr === 'string' ? 'pipe ' + addr : 'port ' + addr.port;
-  console.log(chalk.cyan("==> Server ready"));
-  return console.log(chalk.cyan('Listening server in ' + bind));
+  return console.log(chalk.cyan('==>Listening server in ' + bind));
 });
 
 server.listen(port);
@@ -82,8 +81,24 @@ each = require('foreach');
 console.log(chalk.yellow("==> Sussurro server test libraries loaded"));
 
 describe(chalk.green("Sussurro server"), function() {
-  it('should GET http://localhost:3000/', function(done) {
-    return request("http://localhost:3000").get('/').expect(200);
+  it('should GET http://localhost:3000/', function() {
+    return request("http://localhost:3000").get('/').expect(200).expect(function(res) {
+      var j, len, ref, results, wiki;
+      res.body.should.have.property('flash', false);
+      res.body.should.have.property('msg', '');
+      res.body.should.have.property('wikis');
+      res.body.wikis.should.be.Array();
+      ref = res.body.wikis;
+      results = [];
+      for (j = 0, len = ref.length; j < len; j++) {
+        wiki = ref[j];
+        wiki.should.have.property('name');
+        wiki.should.have.property('description');
+        wiki.should.have.property('posts');
+        results.push(wiki.posts.should.be.Array());
+      }
+      return results;
+    });
   });
   it('should GET http://localhost:3000/api/profiles', function() {
     return request("http://localhost:3000").get('/api/profiles').expect('Content-Type', /json/).expect(200).expect(function(res) {

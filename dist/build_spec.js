@@ -1,6 +1,6 @@
 
 /* MAIN LIBRARIES */
-var App, Bio, BioSchema, Contato, ContatoSchema, GithubCloudStrategy, Local, LocalSchema, LocalStrategy, MongoStore, Post, PostSchema, Profile, ProfileSchema, Session, SessionSchema, SoundCloudStrategy, SussurroConn, User, UserSchema, Wiki, WikiSchema, _schema, bio_test, bios, bodyParser, chalk, cheerio, compression, connectAssets, contato_test, contatos, cookieParser, crypto, each, express, favicon, firstProfile, fs, generatePassword, keychain, locals, locals_test, logger, mailgun_transport, marked, mongoose, nodemailer, onValidate, passport, path, post_test, posts, profile_test, profiles, request, roles, session, should, sussurro, timestamps, uuid, validateLocalStrategyPassword, validateLocalStrategyProperty, wiki_test, wikis;
+var App, Bio, BioSchema, Contato, ContatoSchema, GithubCloudStrategy, Local, LocalSchema, LocalStrategy, MongoStore, Post, PostSchema, Profile, ProfileSchema, Session, SessionSchema, SoundCloudStrategy, SussurroConn, User, UserSchema, Wiki, WikiSchema, _schema, bio_test, bios, bodyParser, chalk, cheerio, compression, connectAssets, contato_test, contatos, cookieParser, crypto, each, express, favicon, firstProfile, fs, generatePassword, index, keychain, locals, locals_test, logger, mailgun_transport, marked, mongoose, nodemailer, onValidate, passport, path, post_test, posts, profile_test, profiles, request, roles, session, should, sussurro, timestamps, uuid, validateLocalStrategyPassword, validateLocalStrategyProperty, wiki_test, wikis;
 
 fs = require('fs');
 
@@ -470,6 +470,7 @@ console.log(chalk.yellow("==> " + Session.modelName + " schema loaded"));
 sussurro = new App();
 
 App.prototype.configure = function(readyState) {
+  this.app = !this.app ? sussurro.app : void 0;
   this.app.set('views', path.join(__dirname, '..', 'app/views/'));
   this.app.engine('pug', function(file_path, options, _callback) {
     return fs.readFile(file_path, 'utf8', function(err, content) {
@@ -513,7 +514,7 @@ App.prototype.configure = function(readyState) {
   this.app.use(connectAssets({
     paths: [this.app.get('img path'), this.app.get('css path'), this.app.get('js path')]
   }));
-  return Session.findOne({}, (function(_this) {
+  Session.findOne({}, (function(_this) {
     return function(err, _session) {
       return _this.app.use(session({
         secret: _session.pass,
@@ -526,6 +527,7 @@ App.prototype.configure = function(readyState) {
       }));
     };
   })(this));
+  return mongoose.connection.readyState;
 };
 
 console.log(chalk.yellow("==> App boot helpers loaded"));
@@ -563,7 +565,7 @@ profiles.index = function(req, res) {
 /* POST /api/profiles/new */
 
 profiles.create = function(req, res) {
-  var _local, bio, contato, i, j, kv, len, len1, local, profile, ref, ref1, user, v;
+  var _local, bio, contato, k, kv, l, len, len1, local, profile, ref, ref1, user, v;
   profile = new Profile({
     nome_completo: req.query.nome_completo,
     nome_artistico: req.query.nome_artistico
@@ -586,14 +588,14 @@ profiles.create = function(req, res) {
   });
   bio.save();
   ref = 'nascimento falecimento'.split(' ');
-  for (i = 0, len = ref.length; i < len; i++) {
-    local = ref[i];
+  for (k = 0, len = ref.length; k < len; k++) {
+    local = ref[k];
     if (req.query['local_de_' + local]) {
       _local = new Local();
       _local.tipo = local;
       ref1 = req.query['local_de_' + local].split("||");
-      for (j = 0, len1 = ref1.length; j < len1; j++) {
-        v = ref1[j];
+      for (l = 0, len1 = ref1.length; l < len1; l++) {
+        v = ref1[l];
         kv = v.split(":");
         _local[kv[0]] = kv[1];
       }
@@ -908,6 +910,57 @@ posts.id = function(req, res, next, id) {
 console.log(chalk.yellow("==> Post controller loaded"));
 
 
+/* Initialize a index router */
+
+index = {};
+
+
+/* GET / */
+
+index.welcome = function(req, res) {
+  var json;
+  json = {
+    flash: false,
+    msg: '',
+    wikis: []
+  };
+  return Wiki.find({}, 'name description posts', function(err, wikis) {
+    var j;
+    if (err) {
+      return res.json({
+        error: err
+      });
+    } else {
+      j = 0;
+      each(wikis, function(wiki, i, a) {
+        json.wikis.push(wiki);
+        return Post.find({
+          wiki: wiki._id
+        }, 'title text author updatedAt', function(err, posts) {
+          if (err) {
+            return res.json({
+              error: err
+            });
+          } else {
+            return each(posts, function(post, j, aa) {
+              return json.wikis[i].posts[j] = {
+                text: post.text,
+                title: post.title,
+                updatedAt: post.updatedAt
+              };
+            });
+          }
+        });
+      });
+      res.status(200);
+      return res.json(json);
+    }
+  });
+};
+
+console.log(chalk.yellow("==> Index helpers loaded"));
+
+
 /* ROUTES */
 
 sussurro.app.param('id', profiles.id);
@@ -928,9 +981,7 @@ sussurro.app.param('post_id', posts.id);
 
 /* Welcome */
 
-sussurro.app.get('/', function(req, res) {
-  return res.render('index');
-});
+sussurro.app.get('/', index.welcome);
 
 
 /* Profiles */
@@ -1619,11 +1670,8 @@ describe(chalk.green("app/models/session"), function() {
 
 describe(chalk.green("boot/app"), function() {
   return it('should be connect with mongodb', function() {
-    return new Promise(function(resolve, reject) {
-      return sussurro.connection.connect().then(sussurro.configure).then(function(readyState) {
-        readyState.should.be.equal(1);
-        return resolve();
-      });
+    return sussurro.connection.connect().then(sussurro.configure).then(function(readyState) {
+      return readyState.should.be.equal(1);
     });
   });
 });
@@ -1636,11 +1684,11 @@ describe(chalk.green("app/controllers/profile"), function() {
   id2 = "0";
   it('should GET /api/profiles', function() {
     return request(sussurro.app).get('/api/profiles').expect('Content-Type', /json/).expect(200).expect(function(res) {
-      var i, len, profile, ref;
+      var k, len, profile, ref;
       res.body.should.is.Array();
       ref = res.body;
-      for (i = 0, len = ref.length; i < len; i++) {
-        profile = ref[i];
+      for (k = 0, len = ref.length; k < len; k++) {
+        profile = ref[k];
         profile.should.have.property('updatedAt');
         profile.should.have.property('nome_artistico');
         profile.should.have.property('nome_completo');
@@ -1720,12 +1768,12 @@ console.log(chalk.yellow("==> Profile app test loaded"));
 describe(chalk.green("app/controllers/bio"), function() {
   it("should GET /api/bios", function() {
     return request(sussurro.app).get('/api/bios').expect(200).expect('Content-Type', /application\/json/).expect(function(res) {
-      var bio, i, len, ref, results;
+      var bio, k, len, ref, results;
       res.body.should.is.Array();
       ref = res.body;
       results = [];
-      for (i = 0, len = ref.length; i < len; i++) {
-        bio = ref[i];
+      for (k = 0, len = ref.length; k < len; k++) {
+        bio = ref[k];
         bio.should.have.property('updatedAt');
         bio.should.have.property('text');
         bio.should.have.property('local_de_nascimento');
@@ -1738,10 +1786,10 @@ describe(chalk.green("app/controllers/bio"), function() {
   });
   return it("should GET /api/bios/:id", function() {
     return Bio.find({}, '_id', function(err, bios) {
-      var bio, i, len, results;
+      var bio, k, len, results;
       results = [];
-      for (i = 0, len = bios.length; i < len; i++) {
-        bio = bios[i];
+      for (k = 0, len = bios.length; k < len; k++) {
+        bio = bios[k];
         results.push(request(sussurro.app).get('/api/bios/' + bio._id).expect(200).expect('Content-Type', /application\/json/).expect(function(res) {
           bio = res.body;
           bio.should.have.not.property('err');
@@ -1762,12 +1810,12 @@ console.log(chalk.yellow("==> Bio app test loaded"));
 describe(chalk.green("app/controllers/local"), function() {
   it("should GET /api/locals", function() {
     return request(sussurro.app).get('/api/locals').expect(200).expect('Content-Type', /application\/json/).expect(function(res) {
-      var i, len, local, ref, results;
+      var k, len, local, ref, results;
       res.body.should.is.Array();
       ref = res.body;
       results = [];
-      for (i = 0, len = ref.length; i < len; i++) {
-        local = ref[i];
+      for (k = 0, len = ref.length; k < len; k++) {
+        local = ref[k];
         local.should.have.not.property('err');
         local.should.have.property('cidade');
         local.should.have.property('estado');
@@ -1779,10 +1827,10 @@ describe(chalk.green("app/controllers/local"), function() {
   });
   return it("should GET /api/locals/:id", function() {
     return Local.find({}, '_id', function(err, locals) {
-      var i, len, local, results;
+      var k, len, local, results;
       results = [];
-      for (i = 0, len = locals.length; i < len; i++) {
-        local = locals[i];
+      for (k = 0, len = locals.length; k < len; k++) {
+        local = locals[k];
         results.push(request(sussurro.app).get('/api/locals/' + local._id).expect(200).expect('Content-Type', /application\/json/).expect(function(res) {
           local = res.body;
           local.should.have.not.property('err');
@@ -1802,12 +1850,12 @@ console.log(chalk.yellow("==> Local app test loaded"));
 describe(chalk.green("app/controllers/contato"), function() {
   it("should GET /api/contatos", function() {
     return request(sussurro.app).get('/api/contatos').expect(200).expect('Content-Type', /application\/json/).expect(function(res) {
-      var contato, i, len, ref, results;
+      var contato, k, len, ref, results;
       res.body.should.is.Array();
       ref = res.body;
       results = [];
-      for (i = 0, len = ref.length; i < len; i++) {
-        contato = ref[i];
+      for (k = 0, len = ref.length; k < len; k++) {
+        contato = ref[k];
         contato.should.have.property('updatedAt');
         contato.should.have.property('email');
         contato.should.have.property('sites');
@@ -1818,10 +1866,10 @@ describe(chalk.green("app/controllers/contato"), function() {
   });
   return it("should GET /api/contatos/:id", function() {
     return Contato.find({}, '_id', function(err, contatos) {
-      var contato, i, len, results;
+      var contato, k, len, results;
       results = [];
-      for (i = 0, len = contatos.length; i < len; i++) {
-        contato = contatos[i];
+      for (k = 0, len = contatos.length; k < len; k++) {
+        contato = contatos[k];
         results.push(request(sussurro.app).get('/api/contato/' + contato._id).expect(200).expect('Content-Type', /application\/json/).expect(function(res) {
           contato = res.body;
           contato.should.have.not.property('err');
@@ -1841,12 +1889,12 @@ console.log(chalk.yellow("==> Contato app test loaded"));
 describe(chalk.green("app/controllers/wiki"), function() {
   it("should GET /api/wikis", function() {
     return request(sussurro.app).get('/api/wikis').expect(200).expect('Content-Type', /application\/json/).expect(function(res) {
-      var i, len, ref, results, wiki;
+      var k, len, ref, results, wiki;
       res.body.should.is.Array();
       ref = res.body;
       results = [];
-      for (i = 0, len = ref.length; i < len; i++) {
-        wiki = ref[i];
+      for (k = 0, len = ref.length; k < len; k++) {
+        wiki = ref[k];
         wiki.should.have.property('updatedAt');
         wiki.should.have.property('description');
         results.push(wiki.should.have.property('posts'));
@@ -1856,10 +1904,10 @@ describe(chalk.green("app/controllers/wiki"), function() {
   });
   return it("should GET /api/wikis/:id", function() {
     return Wiki.find({}, '_id', function(err, wikis) {
-      var i, len, results, wiki;
+      var k, len, results, wiki;
       results = [];
-      for (i = 0, len = wikis.length; i < len; i++) {
-        wiki = wikis[i];
+      for (k = 0, len = wikis.length; k < len; k++) {
+        wiki = wikis[k];
         results.push(request(sussurro.app).get('/api/wikis/' + wiki._id).expect(200).expect('Content-Type', /application\/json/).expect(function(res) {
           wiki = res.body;
           wiki.should.have.not.property('err');
@@ -1876,12 +1924,12 @@ describe(chalk.green("app/controllers/wiki"), function() {
 describe(chalk.green("app/controllers/post"), function() {
   it("should GET /api/posts", function() {
     return request(sussurro.app).get('/api/posts').expect(200).expect('Content-Type', /application\/json/).expect(function(res) {
-      var i, len, post, ref, results;
+      var k, len, post, ref, results;
       res.body.should.is.Array();
       ref = res.body;
       results = [];
-      for (i = 0, len = ref.length; i < len; i++) {
-        post = ref[i];
+      for (k = 0, len = ref.length; k < len; k++) {
+        post = ref[k];
         post.should.have.property('updatedAt');
         post.should.have.property('text');
         post.should.have.property('title');
@@ -1890,12 +1938,12 @@ describe(chalk.green("app/controllers/post"), function() {
       return results;
     });
   });
-  it("should GET /api/posts/:id", function() {
+  return it("should GET /api/posts/:id", function() {
     return Post.find({}, '_id', function(err, posts) {
-      var i, len, post, results;
+      var k, len, post, results;
       results = [];
-      for (i = 0, len = posts.length; i < len; i++) {
-        post = posts[i];
+      for (k = 0, len = posts.length; k < len; k++) {
+        post = posts[k];
         results.push(request(sussurro.app).get('/api/posts/' + post._id).expect(200).expect('Content-Type', /application\/json/).expect(function(res) {
           post = res.body;
           post.should.have.not.property('err');
@@ -1908,9 +1956,31 @@ describe(chalk.green("app/controllers/post"), function() {
       return results;
     });
   });
+});
+
+describe(chalk.green("app/controllers/index"), function() {
+  it('should welcome GET /', function() {
+    return request(sussurro.app).get('/').expect(200).expect('Content-Type', /json/).expect(function(res) {
+      var k, len, ref, results, wiki;
+      res.body.should.have.property('flash').which.is.equal(false);
+      res.body.should.have.property('msg', '');
+      res.body.should.have.property('wikis');
+      res.body.wikis.should.be.Array();
+      ref = res.body.wikis;
+      results = [];
+      for (k = 0, len = ref.length; k < len; k++) {
+        wiki = ref[k];
+        wiki.should.have.property('posts');
+        results.push(wiki.posts.should.be.Array());
+      }
+      return results;
+    });
+  });
   return it("Disconnect from mongodb", function() {
     return sussurro.connection.disconnect().then(function(readyState) {
       return readyState.should.be.equal(3);
     });
   });
 });
+
+console.log(chalk.yellow("==> Index app test loaded"));

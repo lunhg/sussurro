@@ -1,7 +1,16 @@
 describe chalk.green("Sussurro server"), ->
 
-        it 'should GET http://localhost:3000/', (done) ->
-                request("http://localhost:3000").get('/').expect(200)
+        it 'should GET http://localhost:3000/', ->
+                request("http://localhost:3000").get('/').expect(200).expect (res) ->
+                        res.body.should.have.property 'flash', false
+                        res.body.should.have.property 'msg', ''
+                        res.body.should.have.property 'wikis'
+                        res.body.wikis.should.be.Array()
+                        for wiki in res.body.wikis
+                                wiki.should.have.property 'name'
+                                wiki.should.have.property 'description'
+                                wiki.should.have.property 'posts'
+                                wiki.posts.should.be.Array()
                         
         it 'should GET http://localhost:3000/api/profiles', ->
                 request("http://localhost:3000")

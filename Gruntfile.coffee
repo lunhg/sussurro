@@ -16,7 +16,7 @@ build = (array,fn) ->
         
 module.exports = (grunt) ->
         pkg = grunt.file.readJSON('package.json')
-        libs = ['boot/libs','config/development_mode','config/db','config/app','boot/db','app/models/profile','app/models/bio','app/models/local','app/models/contato','app/models/user','app/models/wiki','app/models/post','app/models/session','boot/app', 'app/controllers/profile','app/controllers/bio','app/controllers/local','app/controllers/contato','app/controllers/wiki','app/controllers/post','boot/routes']
+        libs = ['boot/libs','config/development_mode','config/db','config/app','boot/db','app/models/profile','app/models/bio','app/models/local','app/models/contato','app/models/user','app/models/wiki','app/models/post','app/models/session','boot/app', 'app/controllers/profile','app/controllers/bio','app/controllers/local','app/controllers/contato','app/controllers/wiki','app/controllers/post', 'app/controllers/index', 'boot/routes']
         
         server = ['boot/libs.server','boot/server']      
         app = build libs, (_app) ->

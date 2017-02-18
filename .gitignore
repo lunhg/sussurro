@@ -1,26 +1,7 @@
-# Logs
-logs
-*.log
-
-# Runtime data
-pids
-*.pid
-*.seed
-
-# Directory for MongoDB
-db/
-
-# Compiled binary addons (http://nodejs.org/api/addons.html)
-build/Release
-
 # Dependency directory
 # https://docs.npmjs.com/cli/shrinkwrap#caveats
 node_modules
 
-# Debug log from npm
-npm-debug.log
-
 # Emacs buffers
-
-
-Rakefile~
+*~
+\#*\#
