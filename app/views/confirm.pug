@@ -1,0 +1,29 @@
+section.centralize-area(ng-show="resetPassword")
+  br
+  br
+  br
+  br
+  h1 Insira sua nova senha
+  br
+  br
+  form
+    fieldset
+    - var form = {'reset_login_password':{'type':'password', 'placeholder':'', 'label': 'Nova senha'}, 'reset_login_password_confirm':{'type':'password', 'placeholder': '', 'label':'Confirme sua senha'}}
+    - for(var key in form)
+      - var val = form[key]
+      div.form-group
+        label.control-label(for=""+key)= val.label
+          br
+          div
+            input.form-control(type=""+val.type id=""+key placeholder=""+val.placeholder)
+
+    a.btn.btn-default(ng-click="confirm()") Enviar
+
+section.centralize-area(ng-show="verifyEmail")
+  br
+  br
+  br
+  br
+  h1 Email confirmado
+  p faça seu 
+    a(ng-click="confirm()")

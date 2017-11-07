@@ -1,0 +1,156 @@
+div.jumbotron(v-if='!autorizado' style='background:transparent !important')
+  br
+  br
+  br
+  h2 Sussurro
+  br
+  br
+
+div.jumbotron(v-else)
+  br
+  br
+  br
+  h1 FAQ
+  
+  accordion
+    panel(header='Sobre o sussurro')
+      :marked
+        O vanessador é um programa gerenciador de registros de [cursos](/#/cursos), [matrículas](/#/matriculas) de novos [estudantes](/#/estudantes) e antigos [estudante](/#/estudantes)  através de formulários de pré-matrículas [typeform](typeform.com). 
+
+  accordion
+    panel(header='Público alvo')
+      :marked
+        - administradores de documentos do ITS/Rio
+        - tecnólogos da informação do ITS/RIO
+        - Desenvolvedores web do ITS/Rio
+
+      accordion
+        panel(header='Dados Técnicos')
+          :marked
+            - Navegadores testados:
+              - Mozilla/5.0 Ubuntu Chromium/53.0.2785.143 Chrome/53.0.2785.143 Safari/537.36
+              - Chrome / Android 6.0.1
+            - Ambiente de desenvolvimento, bibliotecas e linguagens:
+              - [Node.js](https://nodejs.org/en/)
+              - [Grunt](https://gruntjs.com/)
+              - [Express.js](http://expressjs.com/pt-br/)
+              - [Coffeescript](http://coffeescript.org/)
+              - [Vue.js 2](http://coffeescript.org/)
+              - [Firebase](firebase.google.com)
+            - Código fonte:
+              - [Github](https://www.github.com/lunhg/vanessador)
+
+  
+  accordion
+    panel(header='Conta')
+      :marked
+        Nesta página apresentamos dados básicos do usuário que administrará o sistema. Atualmente, algumas propriedades desta página, como o acesso aos links de edição de informações ou o _upload_ de uma foto de perfil, estão em desenvolvimento e podem não funcionar.
+
+  
+  accordion
+    panel(header='Cursos')
+      :marked
+        Um [curso](/#/curso) é um conjunto de aulas ministradas para [estudantes](/#/estudantes) devidamente [matriculados](/#/matriculas). 
+
+
+      accordion
+        panel(header='Como crio um ou mais cursos?')
+          :marked
+            Clique na aba [cursos](/#/cursos). Você verá dois campos: 
+
+            * um campo para adicionar novos cursos:
+              * manualmente (amarelo)
+              * através de uma planilha excel (verde)
+              * uma lista de cursos cadastrados em uma base de dados [Firebase](https://firebase.google.com/) (Azul)
+
+      accordion
+        panel(header='Adicionando cursos pelo excel')
+          :marked
+            - Clique no campo colunas e insira o conjunto de letras que correspondem às colunas da planilha nomeada como `cursos` em um arquivo excel com múltiplas planilhas. 
+
+            - Clique no campo `Linha Inicial` e insira a linha onde estão os campos/chaves apropriados para os valores da planilha `cursos`.
+
+            - Clique no campo `Linha Final` e insira a linha onde terminam os campos/valores apropriados para os valores da planilha `cursos`.
+
+            - Clique em `Escolher arquivo`
+
+            - Clique em outro item do menu e volte ao menu `cursos` para que os dados apresentem as informações atualizadas (pedimos desculpas pelo incoveniente e estamos trabalhando neste bug).
+
+      accordion
+        panel(header='Adicionando cursos manualmente')
+          :marked
+            Cada curso possui os seguintes campos: 
+              - `Nome`: nome do curso
+              - `Código typeform`: o código utilizado em _urls_ de formulários [typeform](https://www.typeform.com)
+              - `Início das matrículas`: uma data do calendário;
+              - `Fim das matrículas`: uma data do calendário;
+              - `Carga horária`: quantidade de horas totais distribuídas em aulas;
+              - `Quantidade de aulas`;
+              - `Data de início das aulas`;
+              - `Data de término das aulas`;
+              - `Valor para data de início 1`: valor para o primeiro período de matrículas;
+              - `Valor para data de início 2`: valor para o segundo período de matrículas;
+              - `Valor para data de início 3`: valor para o terceiro período de matrículas;
+              - `Valor cheio`: valor bruto do curso;
+              - `Código Pagseguro 1`: uma _url_ de referência ao boleto específico para o valor da data de início 1 ou se o estudante interessado for ex-estudante;
+              - `Código Pagseguro 2`: uma _url_ de referência ao boleto específico para o valor da data de início 2;
+              - `Código Pagseguro 3`: uma _url_ de referência ao boleto específico para o valor da data de início 3;
+              
+
+  accordion
+    panel(header='Estudantes')
+      :marked
+        Estudantes são alunos novos, ou ex-alunos. Ex-alunos são classificados em [Estudantes](/#/estudantes) como _Alumni_.  
+
+        Estudantes realizam seu pré-cadastro em um [formulário](/#/formulário). Este pré-cadastro possui uma referência especial de um link [_typeform_](https://typeform.com). Geralmente eles aparecem na forma `https://<seu nick typeform>.typeform.com/to/<código typeform>`. 
+
+        Para os propósitos deste software, nós inserimos, na página formulários apenas o código typeform.
+
+      accordion
+        panel(header='Como registro um ou mais estudantes?')
+          :marked
+            Clique na aba [cursos](/#/estudantes). Você verá dois campos: 
+
+            * um campo para adicionar novos estudantes:
+              * manualmente (amarelo)
+              * através de uma planilha excel (verde)
+     
+
+      accordion
+        panel(header='Registrando estudantes pelo excel')
+          :marked
+            - Clique no campo colunas e insira o conjunto de letras que correspondem às colunas da planilha nomeada como `alunos` em um arquivo excel com múltiplas planilhas. Os dados apresentados em uma planilha `alunos`serão convertidos para `estudantes`.
+
+            - Clique no campo `Linha Inicial` e insira a linha onde estão os campos/chaves apropriados para os valores da planilha `alunos`.
+
+            - Clique no campo `Linha Final` e insira a linha onde terminam os campos/valores apropriados para os valores da planilha `alunos`.
+
+            - Clique em `Escolher arquivo`
+
+            - Clique em outro item do menu e volte ao menu `estudantes` para que os dados apresentem as informações atualizadas (pedimos desculpas pelo incoveniente e estamos trabalhando neste bug).
+
+      accordion
+        panel(header='Registrando Estudantes manualmente')
+
+  accordion
+    panel(header='Matrículas')
+      :marked
+        Um estudante realiza sua pré-matrícula através de um [formulário](/#/typeform). Uma ou mais matrículas podem ser realizadas automaticamente quando visitamos a página de [cobranças](/#/cobrancas).  Durante esse tempo, verificamos a existência ou não de um ou mais alunos e registramos uma matrícula com o indicativo que ela ainda não foi paga. Após isso, enviamos um email de cobranças para o estudante interessado.
+        
+        Clique na aba [cursos](/#/matriculas). Você verá dois campos: 
+
+        * um campo para adicionar novas matrículas:
+        * manualmente (amarelo)
+        * Matrículas são adicionadas automaticamente a cada vez que criamos um formulário pré-matrícula
+
+  accordion
+    panel(header='Cobranças')
+      :marked
+        Uma cobrança é um conjunto de informações geradas no momento em que se realiza o _download_ de um [formulário de pré-matrícula](/#/formulários). Ali podemos verificar se um email de cobrança foi enviado para os estudantes, bem como se esta cobrança foi devidamente paga.
+
+  
+  accordion
+    panel(header='Formulários')
+      :marked
+        Formulários pré-matrícula são formuário Typeform. Cada resposta de um conjunto de formulários baixados pela API do Typeform serão associados a um curso, de forma que cada resposta será associada a um estudantes novos/existente, bem como respectivas matrículas.
+

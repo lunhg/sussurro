@@ -1,12 +1,8 @@
-### SETUP NODE_ENV ###
-process.env.NODE_ENV = process.env.NODE_ENV or 'development'
-
-#### START DB ###
-if process.env.NODE_ENV is 'development'
-        mongoose.connect 'mongodb://localhost/sussurro'
-if process.env.NODE_ENV is 'test'
-        mongoose.connect 'mongodb://localhost/sussurro'
-if process.env.NODE_ENV is 'production'
-        mongoose.connect 'mongodb://localhost/sussurro'
-if process.env.NODE_ENV is 'deploy'
-        mongoose.connect 'mongodb://localhost/sussurro'
+mongoose.connect("mongodb://#{process.env.MONGODB_URL}")
+        .then(->
+                console.log chalk.cyan "connected to MongoDB"
+                configure = new Configure(app)
+                configure.connect()
+                configure.use()
+        )
+        .catch((err) -> console.log chalk.red err) 

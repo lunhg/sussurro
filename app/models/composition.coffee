@@ -8,6 +8,8 @@ CompositionSchema = new mongoose.Schema
         version: String
         link: String
 
+CompositionSchema.plugin mongoose_timestamp
+
 CompositionSchema.methods.addPath = (p) ->
         this.path = p
         this.save()
@@ -19,5 +21,6 @@ CompositionSchema.methods.addVersion = (v) ->
 CompositionSchema.methods.addLink = (l) ->
         this.link = l
         this.save()
-        
+
+
 mongoose.model 'Composition', CompositionSchema

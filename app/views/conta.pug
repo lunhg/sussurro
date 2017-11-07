@@ -1,0 +1,41 @@
+div.jumbotron(v-if='$parent.autorizado' style='background:transparent !important')
+  br
+  br
+  br
+  h2 Dados Pessoais
+  p Edite dados pessoais como nome, email, foto e telefone* 
+  br
+  br
+  br
+  table.table.table-striped.table-hover
+    tbody
+      tr
+        td Foto
+        td
+          img.img-circle(v-if="user.photoURL" width="64" heigth="64" :src="user.photoURL")
+          div(v-else)
+            img.img-circle(width="64" heigth="64" src="/assets/images/vanessadora.png")
+            <router-link to="{path:'/conta/editar?q=photoURL'}"> editar</router-link>
+      tr
+        td Nome 
+        td 
+          p(v-if="user.displayName") {{ user.displayName }}
+          p(v-else) Não disponível, 
+            <router-link to="{path:'/conta/editar?q=displayName'}"> editar</router-link>
+      tr
+        td Email
+        td {{ user.email }}
+      tr
+        td Número de telefone 
+        td 
+          div
+            p(v-if="user.phoneNumber") {{ user.phoneNumber }}
+            p(v-else) Vincule um número de
+              <router-link to="{name:'/conta/telefone/vincular'}"> telefone</router-link> 
+              
+  p * o número de telefone será necessário para troca de senhas
+
+div(v-else)
+  h1 401
+  p Não Autorizado
+  img(src='https://i.pinimg.com/originals/82/62/90/826290d0a78a5d464815e9112abf788a.jpg') 

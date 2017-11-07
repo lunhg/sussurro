@@ -1,90 +1,219 @@
-#!/usr/bin/env node
+#!/usr/bin/env /home/pi/.nvm/versions/node/v8.0.0/bin/node
+var app, body_parser, chalk, compression, connect_assets, cookie_parser, debug, dotenv, express, express_mailer, express_session, favicon, foreach, fs, getTemplate, http, jstransformer_marked, logger, mailer, nodemailer, nodemailer_mailgun_transport, path, pug, router, serve_favicon, server;
 
-/**
- * Module dependencies.
- */
+fs = require('fs');
 
-var app = require('../server');
-var debug = require('debug')('sussurro:server');
-var http = require('http');
+path = require('path');
 
-/**
- * Get port from environment and store in Express.
- */
+http = require('http');
 
-var port = normalizePort(process.env.PORT || '3000');
-app.set('port', port);
+body_parser = require('body-parser');
 
-/**
- * Create HTTP server.
- */
+compression = require('compression');
 
-var server = http.createServer(app);
+connect_assets = require('connect-assets');
 
-/**
- * Listen on provided port, on all network interfaces.
- */
+cookie_parser = require('cookie-parser');
 
-server.listen(port);
-server.on('error', onError);
-server.on('listening', onListening);
+chalk = require('chalk');
 
-/**
- * Normalize a port into a number, string, or false.
- */
+debug = require('debug');
 
-function normalizePort(val) {
-  var port = parseInt(val, 10);
+dotenv = require('dotenv');
 
-  if (isNaN(port)) {
-    // named pipe
-    return val;
+express = require('express');
+
+express_mailer = require('express-mailer');
+
+express_session = require('express-session');
+
+favicon = require('favicon');
+
+foreach = require('foreach');
+
+jstransformer_marked = require('jstransformer-marked');
+
+nodemailer = require('nodemailer');
+
+nodemailer_mailgun_transport = require('nodemailer-mailgun-transport');
+
+pug = require('pug');
+
+serve_favicon = require('serve-favicon');
+
+
+/* SETUP NODE_ENV */
+
+dotenv.config();
+
+mailer = nodemailer.createTransport(nodemailer_mailgun_transport({
+  auth: {
+    api_key: process.env.MAILGUN_APIKEY,
+    domain: process.env.MAILGUN_DOMAIN
   }
+}));
 
-  if (port >= 0) {
-    // port number
-    return port;
+logger = function() {
+  return function(req, res, next) {
+    res.on('finish', function() {
+      var color, encoding, msg;
+      color = this.statusCode === '404' ? chalk.red : chalk.green;
+      msg = color(this.statusCode) + ' ' + this.req.originalUrl;
+      encoding = this._headers && this._headers['content-encoding'] ? this._headers['content-encoding'] : void 0;
+      if (encoding) {
+        msg += chalk.gray("" + encoding);
+      }
+      return console.log(msg);
+    });
+    return next();
+  };
+};
+
+app = express();
+
+router = express.Router();
+
+app.set('views', path.join(__dirname, '..', 'app/views'));
+
+app.engine('pug', function(file_path, options, _callback) {
+  return fs.readFile(file_path, 'utf8', function(err, content) {
+    var fn;
+    if (err) {
+      _callback(err);
+    }
+    fn = pug.compile(content, {
+      filename: file_path,
+      doctype: 'html'
+    });
+    return _callback(null, fn({
+      filters: [jstransformer_marked]
+    }));
+  });
+});
+
+app.set('view engine', 'pug');
+
+app.set('assets path', [path.join(__dirname, '..', 'app/assets/fonts'), path.join(__dirname, '..', 'app/assets/doc'), path.join(__dirname, '..', 'app/assets/img'), path.join(__dirname, '..', 'app/assets/css'), path.join(__dirname, '..', 'app/assets/js'), path.join(__dirname, '..', 'app/assets/')]);
+
+app.use(logger('dev'));
+
+app.use(connect_assets({
+  paths: app.get('assets path'),
+  bundle: true
+}));
+
+app.use(compression());
+
+app.use(body_parser.json());
+
+app.use(body_parser.urlencoded({
+  extended: false
+}));
+
+server = http.createServer(app);
+
+server.listen(process.env.PORT, function() {
+  var addr;
+  addr = server.address();
+  return console.log(chalk.cyan("Sussurro server ready on port " + process.env.PORT));
+});
+
+app.get('/', function(req, res) {
+  var e, error;
+  try {
+    return res.render('index');
+  } catch (error) {
+    e = error;
+    return res.render('error', {
+      message: e.message,
+      stack: e.stack,
+      status: e.status
+    });
   }
+});
 
-  return false;
-}
+app.get('/config', function(req, res) {
+  return res.json({
+    apiKey: process.env.FIREBASE_API_KEY,
+    authDomain: process.env.FIREBASE_PROJECT_ID + ".firebaseapp.com",
+    databaseURL: "https://" + process.env.FIREBASE_PROJECT_ID + ".firebaseio.com",
+    projectId: process.env.FIREBASE_PROJECT_ID,
+    storageBucket: process.env.FIREBASE_PROJECT_ID + ".appspot.com",
+    messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID
+  });
+});
 
-/**
- * Event listener for HTTP server "error" event.
- */
+getTemplate = function(p) {
+  return new Promise(function(resolve, reject) {
+    var _p;
+    _p = path.resolve((path.join(__dirname)) + "/../app/views/" + p + ".pug");
+    return fs.readFile(_p, 'utf8', function(err, content) {
+      var e, error, html, opt, result;
+      if (!err) {
+        try {
+          opt = {
+            filename: _p,
+            doctype: 'html'
+          };
+          html = pug.compile(content, opt)();
+          result = {
+            component: {
+              template: html
+            },
+            name: p,
+            path: "/" + p
+          };
+          return resolve(result);
+        } catch (error) {
+          e = error;
+          console.log(e);
+          return reject(e);
+        }
+      } else {
+        return reject(err);
+      }
+    });
+  });
+};
 
-function onError(error) {
-  if (error.syscall !== 'listen') {
-    throw error;
-  }
+app.get('/templates/routes/:type', function(req, res) {
+  var onErr, onSuccess;
+  onSuccess = function(result) {
+    return res.json(result);
+  };
+  onErr = function(err) {
+    return res.json(err.message);
+  };
+  return getTemplate(req.params['type']).then(onSuccess)["catch"](onErr);
+});
 
-  var bind = typeof port === 'string'
-    ? 'Pipe ' + port
-    : 'Port ' + port;
+app.get('/templates/index/routes', function(req, res) {
+  return res.json(["_index", "login", "signup", "resetPassword", "confirm", "conta"]);
+});
 
-  // handle specific listen errors with friendly messages
-  switch (error.code) {
-    case 'EACCES':
-      console.error(bind + ' requires elevated privileges');
-      process.exit(1);
-      break;
-    case 'EADDRINUSE':
-      console.error(bind + ' is already in use');
-      process.exit(1);
-      break;
-    default:
-      throw error;
-  }
-}
+app.get("/templates/index/page", function(req, res) {
+  var p;
+  p = path.join(__dirname, '..', 'app/views', 'vue.pug');
+  return fs.readFile(p, 'utf8', function(err, content) {
+    var html, opt;
+    opt = {
+      filename: p,
+      doctype: 'html'
+    };
+    html = pug.compile(content, opt)();
+    return res.send(html);
+  });
+});
 
-/**
- * Event listener for HTTP server "listening" event.
- */
-
-function onListening() {
-  var addr = server.address();
-  var bind = typeof addr === 'string'
-    ? 'pipe ' + addr
-    : 'port ' + addr.port;
-  debug('Listening on ' + bind);
-}
+app.get("/templates/index/data", function(req, res) {
+  return res.json({
+    autorizado: false,
+    user: {
+      displayName: false,
+      email: false,
+      photoURL: false,
+      telephone: false
+    },
+    atualizar: {}
+  });
+});

@@ -9,5 +9,5 @@ PostSchema = new mongoose.Schema
         wiki: mongoose.Schema.Types.ObjectId
         comments: [{type: mongoose.Schema.Types.ObjectId, ref: 'Comments'}]
 
-PostSchema.plugin timestamps
+PostSchema.plugin mongoose_timestamp
 mongoose.model 'Post', PostSchema

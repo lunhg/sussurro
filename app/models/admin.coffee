@@ -1,5 +1,5 @@
 # Comment these lines in test or production mode. #
-Admin = mongoose.model 'Admin',
+AdminSchema = mongoose.Schema
         name:
                 first: String
                 last:  String
@@ -8,3 +8,6 @@ Admin = mongoose.model 'Admin',
         user:
                 id: mongoose.Schema.Types.ObjectId
                 name: String
+                
+AdminSchema.plugin mongoose_timestamp
+mongoose.model 'Admin', AdminSchema

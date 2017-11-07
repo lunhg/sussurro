@@ -1,12 +1,9 @@
-var chalk = require('chalk');
-
 logger = ->
         (req, res, next) ->
         	res.on 'finish', ->
-                        color = @statusCode is '404' then chalk.red else chalk.green
+                        color = if @statusCode is '404' then chalk.red else chalk.green
                         msg   = color(this.statusCode) + ' ' + this.req.originalUrl;
-                        encoding = @_headers and @_headers['content-encoding']
-                        if encoding
-                		msg += chalk.gray("#{encoding}")
-                                console.log(msg)
+                        encoding = if @_headers and @_headers['content-encoding'] then @_headers['content-encoding']
+                        if encoding then msg += chalk.gray("#{encoding}")
+                        console.log(msg)
                 	next()

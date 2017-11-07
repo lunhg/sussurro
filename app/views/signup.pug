@@ -1,9 +1,23 @@
-extends layout
-include ./mixins.pug
-
-block content
-  +createMainPage('Cadastre-se')
-    +form_for('/signup', 'post', form, 'vertical')
-    hr
-    p Ou entre através das redes sociais
-    +social_for('/signup', ['soundcloud', 'github'])
+section.centralize-area
+  br
+  br
+  br
+  br
+  h1 Cadastre-se
+  br
+  br
+  br
+  br
+  p(v-if="autorizado") Você já está logado
+  form(v-if="!autorizado")
+    fieldset
+      - var form = {'input_signup_email':{'type':'text', 'placeholder':'email'}, 'input_signup_senha':{'type':'password', 'placeholder':'senha'}}
+      - for(var key in form)
+        - var val = form[key]
+        div.form-group
+          label.control-label(for=""+key)= val.placeholder 
+            div
+              input.form-control(type=""+val.type id=""+key placeholder=""+val.placeholder)
+    br
+    br
+    a.btn.btn-success(v-on:click.prevent="signup") Cadastrar 

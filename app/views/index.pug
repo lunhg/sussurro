@@ -1,8 +1,42 @@
 extends layout
-include ./mixins.pug
 
-block content
-  +menu('?wiki', name, index, posts)
-  - var msg = "Publicado em "+updatedAt+" por "+authors
-  +post(title, text, msg)
-          
+block head
+  title Sussurro
+  base(href="/")
+  meta(name="viewport" content="width=device-width, initial-scale=1.0")
+  link(rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css")
+  != css("index")
+  != css("vue-autocomplete")
+  != css("vue-toastr.min")
+
+block inicializador
+  section#masterLoader.centralize-area
+    br
+    br
+    br
+    br
+    br
+    br
+    br
+    br
+    img(src="/assets/images/loading.gif" width="64" height="64")
+    p#masterLoaderMessage Inicializando Sussurro...
+
+block scripts
+  != js("jquery.min", {'data-turbolinks-track':true})
+  != js("bootstrap.min", {'data-turbolinks-track':true})
+  != js("vue", {'data-turbolinks-track':true})
+  != js("vue-router", {'data-turbolinks-track':true})
+  != js("vue-resource.min", {'data-turbolinks-track':true})
+  != js("vue-strap.min", {'data-turbolinks-track':true})
+  != js("vue-toastr.min", {'data-turbolinks-track':true})
+  != js("firebase", {'data-turbolinks-track':true})
+  != js("firebase-app", {'data-turbolinks-track':true})
+  != js("firebase-auth", {'data-turbolinks-track':true})
+  != js("firebase-database", {'data-turbolinks-track':true})
+  != js("firebase-messaging", {'data-turbolinks-track':true})
+  != js("moment.min.js", {'data-turbolinks-track':true})
+  != js("sob.js", {'data-turbolinks-track':true})
+  != js("uuid", {'data-turbolinks-track':true})
+  != js("index", {'data-turbolinks-track':true})
+    

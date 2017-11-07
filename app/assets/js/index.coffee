@@ -1,3 +1,8 @@
-$(document).ready ->
-        $('[data-toggle=offcanvas]').click ->
-                $('.row-offcanvas').toggleClass('active')
+#= require log
+#= require app
+#= require menu
+#= require vue-firebase-users
+#= require vue-firebase-utils
+#= require routes
+#= require config
+#= require boot

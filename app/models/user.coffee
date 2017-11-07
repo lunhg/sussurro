@@ -15,6 +15,8 @@ UserSchema = new mongoose.Schema
                 posts: [{type: mongoose.Schema.Types.ObjectId, ref: 'Post'}]
                 compositions: [{type: mongoose.Schema.Types.ObjectId, ref: 'Composition'}]
 
+UserSchema.plugin mongoose_timestamp
+
 UserSchema.methods.setPassword = (pass) ->
         this.password = pass
         this.save()
