@@ -1,7 +1,0 @@
-### MAILGUN (https://mailgun.com) ###
-_mail_conf = require("./mailgun.json")
-MAILBOT = _mail_conf.email
-MAILER = 
-        auth:
-                api_key: _mail_conf.api_key
-                domain: _mail_conf.domain
