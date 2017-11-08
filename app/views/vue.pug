@@ -1,0 +1,6 @@
+div
+  <sussurro-menu :autorizado='autorizado' :user='user'></sussurro-menu>
+  div.container-fluid
+    div.side-body
+      <vue-toastr ref="toastr"></vue-toastr>
+      <router-view :autorizado='autorizado' :user='user' :atualizar='atualizar' :login='login' :logout='logout' :signup='signup'></router-view>

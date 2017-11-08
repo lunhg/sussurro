@@ -1,55 +1,55 @@
 ### Grunt tasks ###
 path = require 'path'
 each = require 'foreach'
-
-build = (array,fn) ->
-        app = []
-        test = []
-        each array, (e,i) ->
-                app.push  path.join(__dirname, "#{e}.coffee") 
-                test.push path.join(__dirname, "#{e}.coffee")
-
-        if fn then fn(app)
-
-        each array, (e, i) -> test.push path.join(__dirname, "#{e}.test.coffee")
-        {app: app, test: test}
+require_from_package = require 'require-from-package'
+check_node = require 'check_node'
         
 module.exports = (grunt) ->
         pkg = grunt.file.readJSON('package.json')
-        libs = ['boot/libs','config/development_mode','config/db','config/app','boot/db','app/models/profile','app/models/bio','app/models/local','app/models/contato','app/models/user','app/models/wiki','app/models/post','app/models/session','boot/app', 'app/controllers/profile','app/controllers/bio','app/controllers/local','app/controllers/contato','app/controllers/wiki','app/controllers/post', 'app/controllers/index', 'boot/routes']
+        options = pkg.options;
+        options.pkg = name: pkg.name, version: pkg.version
         
-        server = ['boot/libs.server','boot/server']      
-        app = build libs, (_app) ->
-                _app.push path.join(__dirname, 'boot/exports.coffee')
-        
-        www = build server
-        options =
-                coffee:
-                        compileJoined:
-                                options:
-                                        joinExt: '.coffee'
-                                        bare: true
-                                        join: true
-                                files:
-                                        'dist/build.js': app.app
-                                        'dist/build_spec.js': app.test
-                                        'bin/www': www.app
-                                        'dist/www_spec.js': www.test
-                usebanner:
-                        www: 
-                                options:
-                                        position: 'top',
-                                        banner: '#!~/.nvm/versions/node/v4.2.2/bin/node\n',
-                                        linebreak: true
-                                files:
-                                        src: [ 'bin/www' ]
-                        
-        # build them to dist/build.js and dist/spec.js, and then add a little banner to bin/www
-        grunt.initConfig options
-
-        # load tasks
+        # load task
         grunt.loadNpmTasks 'grunt-contrib-coffee'
         grunt.loadNpmTasks 'grunt-banner'
+        grunt.loadNpmTasks 'grunt-shell'
+        
+        grunt.registerTask 'build:init', 'An async configure task', ->
+                done = @async()
+                check_node (err, node_path) ->
+                        if err then done(err)
+                        grunt.config('pkg.node_version', node_path)
+                        done()
+
+        grunt.registerTask 'build:libs', 'An async library maker task', ->
+                done = @async()
+                require_from_package({
+                        ext: 'coffee'
+                        path: process.cwd()
+                        destination: "boot"
+                        pkg: pkg
+                        core: ['fs', 'path', 'http']
+                        validate: (name) ->
+                                regexp = new RegExp("(grunt.*|check_node|require_from_package|syncprompt)")
+                                !name.match(regexp)
+                }, done)
+
+        grunt.registerTask 'build:docs', 'Build documentation with docco', ->
+                c = ""
+                # Document all
+                for k,v of options.coffee.files
+                        for file in v
+                                orig = "#{path.join(__dirname)}/#{file}"
+                                dest = "#{path.join(__dirname)}/app/assets/doc/#{file}"
+                                
+                                console.log "origin: #{orig}"
+                                console.log "dest: #{dest}"
+                                c += ("docco #{orig} -o #{dest} ; ")
+        
+                grunt.config('shell', {'docco': c})
+                
+                
+        grunt.initConfig options
         
         # register tasks
-        grunt.registerTask 'default', ['coffee', 'usebanner']
+        #grunt.registerTask 'default', ['build:init', 'build:libs', 'coffee', 'usebanner']

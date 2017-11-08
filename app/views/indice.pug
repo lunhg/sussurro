@@ -1,0 +1,55 @@
+div.jumbotron(v-if='!autorizado' style='background:transparent !important')
+  br
+  br
+  br
+  h2 Sussurro
+  br
+  br
+
+div.jumbotron(v-else)
+  br
+  br
+  br
+  h1 FAQ
+  
+  accordion
+    panel(header='Sobre o sussurro')
+      :marked
+        O sussurro é um programa gerenciador de registros de [audios](/#/audios) e [postagens](/#/postagens) sobre [compositores](/#/compositores) brasileiros e portugueses.
+
+  accordion
+    panel(header='Público alvo')
+      :marked
+        - Artistas
+        - Administradores de documentação de música contemporânea
+        - Tecnólogos da informação
+        - Desenvolvedores
+        - Investidores
+
+      accordion
+        panel(header='Dados Técnicos')
+          :marked
+            - Navegadores testados:
+              - Mozilla/5.0 Ubuntu Chromium/53.0.2785.143 Chrome/53.0.2785.143 Safari/537.36
+              - Chrome / Android 6.0.1
+            - Ambiente de desenvolvimento, bibliotecas e linguagens:
+              - [Node.js](https://nodejs.org/en/)
+              - [Grunt](https://gruntjs.com/)
+              - [Express.js](http://expressjs.com/pt-br/)
+              - [Coffeescript](http://coffeescript.org/)
+              - [Vue.js 2](http://coffeescript.org/)
+              - [Firebase](firebase.google.com)
+            - Código fonte:
+              - [Github](https://www.github.com/lunhg/vanessador)
+
+  
+  accordion
+    panel(header='Audios')
+      :marked
+        Nesta página apresentamos dados básicos do usuário que administrará o sistema. Atualmente, algumas propriedades desta página, como o acesso aos links de edição de informações ou o _upload_ de uma foto de perfil, estão em desenvolvimento e podem não funcionar.
+
+  
+  accordion
+    panel(header='Postagens')
+      :marked
+        Uma [postagem](/#/postagem) é um texto de um [compositor](/#/compositor).

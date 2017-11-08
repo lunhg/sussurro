@@ -1,4 +1,0 @@
-extends layout
-include ./mixins.pug
-
-block content

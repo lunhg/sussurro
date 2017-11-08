@@ -1,10 +1,26 @@
-extends layout
-include ./mixins.pug
-
-block content
-  +createMainPage('Entrar')
-    +form_for('/login', 'post', form)
-    hr
-    p Ou entre através das redes sociais
-    +social_for('/signup', ['soundcloud', 'github'])
-      
+section.centralize-area
+  br
+  br
+  br
+  br
+  h1 Login
+  br
+  br
+  br
+  br
+  p(v-if="autorizado") Você já está logado
+  form(v-if="!autorizado")
+    fieldset 
+    - var form = {'input_login_email':{'type':'text', 'placeholder':'email'}, 'input_login_password':{'type':'password', 'placeholder': 'senha'}}
+    - for(var key in form)
+      - var val = form[key]
+      div.form-group
+        label.control-label(for=""+key)
+          div 
+            input.form-control(type=""+val.type id=""+key placeholder=""+val.placeholder autocomplete='off')
+    
+    button#login-button-page.btn.btn-default(v-on:click.prevent="login") Login 
+    br
+    br
+    div.section-divider
+      <router-link :to="{name:'resetPassword'}">Esqueceu sua senha?</router-link>

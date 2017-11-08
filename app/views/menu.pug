@@ -1,0 +1,72 @@
+div.row
+  div.side-menu
+    nav.navbar.navbar-default(role='navigation')
+      div.navbar-header
+        div.brand-wrapper
+          button.navbar-toggle.collapsed(type='button', data-toggle='collapse', data-target='#navbar', aria-expanded='false', aria-controls='navbar')
+            span.sr-only Toggle navigation
+            span.icon-bar
+            span.icon-bar
+            span.icon-bar
+          div.brand-name-wrapper
+            <router-link id='index-button' class='' :to="{name:'indice'}">
+              span.navbar-brand Sussurro
+            </router-link> 
+          
+          // Main menu
+          div.side-menu-container
+            ul.nav.navbar-nav(v-if="!autorizado")
+              li
+                a#github-button.nav-link.active(href="https://www.github.com/lunhg/sussurro")
+                  img(src="/assets/images/git.png" width='28' height='28') 
+                  span Contribua
+                  
+              li
+                <router-link id='login-button' :to="{name:'login'}">
+                  img(src="/assets/images/login.png" width='28' height='28') 
+                  span Login
+                </router-link>
+              li
+                <router-link id='signup-button' :to="{name:'signup'}">
+                  img(src="/assets/images/signup.png" width='28' height='28') 
+                  span Cadastrar
+                </router-link>
+    
+            ul.nav.navbar-nav(v-else)
+                
+              li#conta-menu
+                div
+                  br
+                  <router-link id='conta-button' :to="{path:'/conta'}">
+                    img(v-show="user.photoUrl" :src="user.photoUrl" width='28' height='28')
+                    img(v-show="!user.photoUrl" src="/assets/images/user.png" width='28' height='28')
+                  </router-link> 
+                  span Conta
+                  br
+
+              li#musicas-menu
+                div
+                  br
+                  <router-link id='cursos-button' to="/audios">
+                    img(src="/assets/images/sampling.png" width='34' height='34')
+                  </router-link>
+                  span Audios
+                  br
+
+              li#postagens-menu
+                div
+                  br
+                  <router-link id='postagens-button' :to="{path:'/postagens'}">
+                    img(src="/assets/images/feed.png" width='28' height='28')    
+                  </router-link>
+                  span Postagens  
+                  br        
+
+              li#signout-menu
+                div
+                  br
+                  <router-link id='logout-button' to='/login'>    
+                    img(v-on:click.prevent="$parent.logout" src='/assets/images/logout.png' width='28' height='28' rel='nofollow')      
+                  </router-link> 
+                  span Logout
+                  br
