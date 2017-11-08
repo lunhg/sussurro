@@ -10,6 +10,6 @@ log = (msg) ->
         fluxus = -> p.innerHTML = msg.toString()
         setTimeout fluxus, 750
 
-toast = (root, obj) ->
+toast = (obj) ->
         obj.title = "#{moment().format('MMMM Do YYYY, h:mm:ss a')} \n #{obj.title}"
-        root.$refs.toastr.Add(obj)
+        window.app.$refs.toastr.Add(obj)

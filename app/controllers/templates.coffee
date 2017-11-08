@@ -22,12 +22,14 @@ app.get '/templates/routes/:type', (req, res) ->
 
 app.get '/templates/index/routes', (req, res) ->
         res.json [
-                "_index",
+                "indice",
                 "login",
                 "signup",
                 "resetPassword",
                 "confirm",
-                "conta"
+                "conta",
+                "audios"
+                "postagens"
         ]
                 
 app.get "/templates/index/page", (req, res) ->

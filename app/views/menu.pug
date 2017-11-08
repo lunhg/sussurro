@@ -9,13 +9,13 @@ div.row
             span.icon-bar
             span.icon-bar
           div.brand-name-wrapper
-            <router-link id='index-button' class='' :to="{name:'_index'}">
+            <router-link id='index-button' class='' :to="{name:'indice'}">
               span.navbar-brand Sussurro
             </router-link> 
           
           // Main menu
           div.side-menu-container
-            ul.nav.navbar-nav(v-if="!$parent.autorizado")
+            ul.nav.navbar-nav(v-if="!autorizado")
               li
                 a#github-button.nav-link.active(href="https://www.github.com/lunhg/sussurro")
                   img(src="/assets/images/git.png" width='28' height='28') 
@@ -38,29 +38,28 @@ div.row
                 div
                   br
                   <router-link id='conta-button' :to="{path:'/conta'}">
-                    
-                    img(v-else src="/assets/images/vanessadora.png" width='28' height='28')
+                    img(v-show="user.photoUrl" :src="user.photoUrl" width='28' height='28')
+                    img(v-show="!user.photoUrl" src="/assets/images/user.png" width='28' height='28')
                   </router-link> 
                   span Conta
                   br
 
-              li#cursos-menu
+              li#musicas-menu
                 div
                   br
-                  <router-link id='cursos-button' to="/composicoes">
-                    img(src="/assets/images/composicoes.png" width='34' height='34')
+                  <router-link id='cursos-button' to="/audios">
+                    img(src="/assets/images/sampling.png" width='34' height='34')
                   </router-link>
-                  span Cursos
+                  span Audios
                   br
 
-              li#formularios-menu
+              li#postagens-menu
                 div
                   br
-                  <router-link id='formularios-button' :to="{path:'/postagens'}">
-                    img(src="/assets/images/formularios.png" width='28' height='28')    
+                  <router-link id='postagens-button' :to="{path:'/postagens'}">
+                    img(src="/assets/images/feed.png" width='28' height='28')    
                   </router-link>
-                  span Formulários 
-                    small Pré-matrículas
+                  span Postagens  
                   br        
 
               li#signout-menu

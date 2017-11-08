@@ -15,7 +15,7 @@ div.jumbotron(v-if='$parent.autorizado' style='background:transparent !important
           img.img-circle(v-if="user.photoURL" width="64" heigth="64" :src="user.photoURL")
           div(v-else)
             img.img-circle(width="64" heigth="64" src="/assets/images/vanessadora.png")
-            <router-link to="{path:'/conta/editar?q=photoURL'}"> editar</router-link>
+            a(v-on:click.prevent='updatedPhoto') atualizar
       tr
         td Nome 
         td 

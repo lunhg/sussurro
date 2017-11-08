@@ -11,18 +11,8 @@ isValid = ->
         val = @validation
         Object.keys(val).every (key) -> val[key]
 
-onSign = (user) ->
-        toast self.$parent, {
-                title: "Bem-vindo(a)",
-                msg: user.name or user.email
-                clickClose: true
-                timeout: 5000
-                position: "toast-top-right",
-                type: "success"
-        }
-
 onErr = (err) ->
-        toast self.$parent, {
+        toast {
                 title: err.code,
                 msg: "#<p>{err.message}:</p></br><p>#{err.stack}</p>"
                 clickClose: true
@@ -36,11 +26,20 @@ login = ->
         id_password = 'input_login_password'
         self = this
         email = document.getElementById(id_login).value
+
         if email.match(emailRE)
                 firebase.auth()
                         .signInWithEmailAndPassword(email,(document.getElementById(id_password).value))
-                        .then(onLogin)
-                        .catch(onErr)
+                        .then((user) ->
+                                toast {
+                                        title: "Bem-vindo(a)",
+                                        msg: user.name or user.email
+                                        clickClose: true
+                                        timeout: 5000
+                                        position: "toast-top-right",
+                                        type: "success"
+                                }
+                        ).catch(onErr)
         else
                  onErr new Error "Email inválido"
 
@@ -49,10 +48,20 @@ signup = ->
         id_login = 'input_signup_email'
         id_password = 'input_signup_senha'
         self = this
-        
         email = document.getElementById(id_login).value
         if email.match(emailRE)
-                firebase.auth().createUserWithEmailAndPassword(email, document.getElementById(id_password).value).then(onSignup).catch(onErr)
+                firebase.auth()
+                        .createUserWithEmailAndPassword(email, document.getElementById(id_password).value)
+                        .then((user) ->
+                                toast {
+                                        title: "Bem-vindo(a)",
+                                        msg: user.name or user.email
+                                        clickClose: true
+                                        timeout: 5000
+                                        position: "toast-top-right",
+                                        type: "success"
+                                }
+                        ).catch(onErr)
         else
                 onErr new Error("Password not match")
 # Logout
@@ -60,9 +69,9 @@ logout = ->
         self = this
         onSignout = ->
                 self.$router.push '/login'
-                toast self, {
+                toast {
                         title: "Você saiu",
-                        msg: "com sucesso do vanessador"
+                        msg: "com sucesso do Sussurro"
                         clickClose: true
                         timeout: 5000
                         position: "toast-top-right",

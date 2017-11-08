@@ -188,7 +188,7 @@ app.get('/templates/routes/:type', function(req, res) {
 });
 
 app.get('/templates/index/routes', function(req, res) {
-  return res.json(["_index", "login", "signup", "resetPassword", "confirm", "conta"]);
+  return res.json(["indice", "login", "signup", "resetPassword", "confirm", "conta", "audios", "postagens"]);
 });
 
 app.get("/templates/index/page", function(req, res) {
